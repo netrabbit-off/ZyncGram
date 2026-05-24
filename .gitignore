@@ -1,0 +1,3 @@
+backend/.env
+backend/cache_*.db
+backend/session.dat
