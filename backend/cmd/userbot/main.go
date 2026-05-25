@@ -17,6 +17,7 @@ func main() {
 	client.Telegram.OnCommand("люблю", bot.LoveHandler, telegram.IsOutgoing)
 	client.Telegram.OnCommand("info", bot.InfoHandler, telegram.IsOutgoing)
 	client.Telegram.OnMessage("", bot.LaughHandler, telegram.IsOutgoing)
+	client.Telegram.OnMessage("", bot.AnimateHandler, telegram.IsOutgoing)
 
 	client.Start()
 }

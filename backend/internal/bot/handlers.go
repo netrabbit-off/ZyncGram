@@ -121,3 +121,32 @@ func LaughHandler(message *telegram.NewMessage) error {
 
 	return nil
 }
+
+func AnimateHandler(message *telegram.NewMessage) error {
+	mesText := message.Text()
+	text := strings.ToLower(mesText)
+	if strings.Contains(strings.Join([]string{"жиза", "имба", "база"}, ";"), text) {
+		for range 10 {
+			for i := range text {
+				res := ""
+				for j, c := range text {
+					if i == j {
+						res += "<b>" + strings.ToUpper(string(c)) + "</b>"
+					} else {
+						res += string(c)
+					}
+				}
+				message.Edit(res)
+				time.Sleep(800 * time.Millisecond)
+			}
+		}
+		for range 5 {
+			message.Edit("<b>" + strings.ToUpper(text) + "</b>")
+			time.Sleep(800 * time.Millisecond)
+			message.Edit(strings.ToLower(text))
+			time.Sleep(800 * time.Millisecond)
+		}
+		message.Edit(mesText)
+	}
+	return nil
+}
