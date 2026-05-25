@@ -1,12 +1,27 @@
 package bot
 
 import (
+	"math/rand/v2"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/amarnathcjd/gogram/telegram"
 )
+
+func uniqueCharacters(input string) string {
+	seen := make(map[rune]bool)
+	var result strings.Builder
+
+	for _, char := range input {
+		if !seen[char] {
+			seen[char] = true
+			result.WriteRune(char)
+		}
+	}
+
+	return result.String()
+}
 
 func PingHandler(message *telegram.NewMessage) error {
 	message.Reply("<b>Pong</b>")
@@ -82,6 +97,26 @@ func InfoHandler(message *telegram.NewMessage) error {
 			"<b>Кол-во абзацев</b>: " + strconv.FormatInt(int64(len(strings.Split(repMes.Text(), "\n"))), 10),
 			"<b>Кол-во слов</b>: " + strconv.FormatInt(int64(len(strings.Split(repMes.Text(), " "))), 10),
 		}, "\n"))
+	}
+
+	return nil
+}
+
+func LaughHandler(message *telegram.NewMessage) error {
+	text := strings.ToLower(message.Text())
+	if len(uniqueCharacters(text)) <= 8 && (strings.Contains(text, "ах") || strings.Contains(text, "ха")) {
+		for range 10 {
+			res := ""
+			for _, c := range text {
+				if rand.IntN(2) == 1 {
+					res += "<b>" + strings.ToUpper(string(c)) + "</b>"
+				} else {
+					res += string(c)
+				}
+			}
+			message.Edit(res)
+			time.Sleep(800 * time.Millisecond)
+		}
 	}
 
 	return nil

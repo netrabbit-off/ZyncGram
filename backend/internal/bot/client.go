@@ -24,9 +24,19 @@ func NewClient(cfg *config.Config) *Client {
 	return &Client{cfg: cfg, Telegram: client}
 }
 
-func (c *Client) Start() {
+func (c *Client) Init() {
 	c.Telegram.Conn()
-
-	c.Telegram.Login(c.cfg.Phone) // for user account, or client.AuthPrompt() for interactive login
+	c.Telegram.Login(c.cfg.Phone)
 	c.Telegram.SetParseMode("html")
+}
+
+func (c *Client) RegisterHandlers() {
+	c.Telegram.OnCommand("ping", PingHandler, telegram.Any(telegram.IsPrivate, telegram.IsGroup))
+	c.Telegram.OnCommand("119", PlaneHandler, telegram.IsOutgoing)
+	c.Telegram.OnCommand("люблю", LoveHandler, telegram.IsOutgoing)
+	c.Telegram.OnCommand("info", InfoHandler, telegram.IsOutgoing)
+}
+
+func (c *Client) Start() {
+	c.Telegram.Idle()
 }

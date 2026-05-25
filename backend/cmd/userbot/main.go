@@ -10,12 +10,13 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 	client := bot.NewClient(cfg)
-	client.Start()
+	client.Init() /// jfdjfdfkdfjddks
 
 	client.Telegram.OnCommand("ping", bot.PingHandler, telegram.Any(telegram.IsPrivate, telegram.IsGroup))
 	client.Telegram.OnCommand("119", bot.PlaneHandler, telegram.IsOutgoing)
 	client.Telegram.OnCommand("люблю", bot.LoveHandler, telegram.IsOutgoing)
 	client.Telegram.OnCommand("info", bot.InfoHandler, telegram.IsOutgoing)
+	client.Telegram.OnMessage("", bot.LaughHandler, telegram.IsOutgoing)
 
-	client.Telegram.Idle()
+	client.Start()
 }
