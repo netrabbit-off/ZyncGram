@@ -11,6 +11,7 @@ type Config struct {
 	AppID   int32  `envconfig:"APP_ID" required:"true"`
 	AppHash string `envconfig:"APP_HASH" required:"true"`
 	Phone   string `envconfig:"PHONE" required:"true"`
+	Clown   string `envconfig:"CLOWN" required:"true"`
 }
 
 func LoadConfig() *Config {
