@@ -264,7 +264,7 @@ func StatisticsHandler(message *telegram.NewMessage) error {
 
 		for _, w := range words {
 			w = strings.Trim(w, ".,!?;:()[]{}<>\"'`")
-			if len(w) < 3 || ignoredWords[w] {
+			if len(w) < 6 || ignoredWords[w] {
 				continue
 			}
 			userWordCount[uid][w]++
