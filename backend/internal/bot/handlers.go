@@ -79,9 +79,14 @@ func LoveHandler(message *telegram.NewMessage) error {
 
 func InfoHandler(message *telegram.NewMessage) error {
 	if !message.IsReply() {
+		sender := message.Sender
+		senderID := message.ChatID()
+		if sender != nil {
+			senderID = sender.ID
+		}
 		message.Edit(strings.Join([]string{
 			"<b>ChatID</b>: <code>" + strconv.FormatInt(message.ChatID(), 10) + "</code>",
-			"<b>SenderID</b>: <code>" + strconv.FormatInt(message.Sender.ID, 10) + "</code>",
+			"<b>SenderID</b>: <code>" + strconv.FormatInt(senderID, 10) + "</code>",
 			"<b>MessageID</b>: <code>" + strconv.FormatInt(int64(message.ID), 10) + "</code>\n",
 		}, "\n"))
 	} else {
@@ -342,7 +347,11 @@ func StatisticsHandler(message *telegram.NewMessage) error {
 }
 
 func (c *Client) ClownHandler(message *telegram.NewMessage) error {
-	if message.Sender.Username == c.cfg.Clown {
+	sender := message.Sender
+	if sender == nil {
+		return nil
+	}
+	if sender.Username == c.cfg.Clown {
 		message.React("🤡")
 	}
 	return nil

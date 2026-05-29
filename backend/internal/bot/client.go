@@ -27,6 +27,10 @@ func NewClient(cfg *config.Config) *Client {
 func (c *Client) Init() {
 	c.Telegram.Conn()
 	c.Telegram.Login(c.cfg.Phone)
+	_, err := c.Telegram.UpdatesGetState()
+	if err != nil {
+		panic(err)
+	}
 	c.Telegram.SetParseMode("html")
 }
 
