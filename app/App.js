@@ -6,7 +6,6 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.text}>✅ Zync работает!</Text>
       <Text style={styles.subtext}>Телефон: открой браузер по ссылке</Text>
-      <Text style={styles.subtext}>ХУЙ БЛЯТЬ</Text>
     </View>
   );
 }

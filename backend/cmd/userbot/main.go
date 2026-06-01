@@ -7,8 +7,8 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
-
 	client := bot.NewClient(cfg)
+
 	client.Init()
 	client.RegisterHandlers()
 	client.Start()

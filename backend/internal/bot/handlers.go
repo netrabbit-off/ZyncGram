@@ -8,21 +8,9 @@ import (
 	"time"
 
 	"github.com/amarnathcjd/gogram/telegram"
+	"github.com/netrabbit-off/ZyncGram/backend/pkg/dictionary"
+	"github.com/netrabbit-off/ZyncGram/backend/pkg/utils"
 )
-
-func uniqueCharacters(input string) string {
-	seen := make(map[rune]bool)
-	var result strings.Builder
-
-	for _, char := range input {
-		if !seen[char] {
-			seen[char] = true
-			result.WriteRune(char)
-		}
-	}
-
-	return result.String()
-}
 
 func PingHandler(message *telegram.NewMessage) error {
 	message.Reply("<b>Pong</b>")
@@ -32,8 +20,9 @@ func PingHandler(message *telegram.NewMessage) error {
 
 func PlaneHandler(message *telegram.NewMessage) error {
 	plane := "🛫"
-	message.Edit("." + strings.Repeat(" ", 44) + "🏬")
-	for i := range 23 {
+	message.Edit("." + strings.Repeat(" ", 44) + "🏬") // Первый кадр - пустота и здание в конце
+	for i := range 23 {                               // Анимация полета
+		// Перемещение самолета на 2 клетки за кадр && пауза 300мс
 		message.Edit("." + strings.Repeat(" ", i*2) + plane + strings.Repeat(" ", 45-i*2) + "🏬")
 		time.Sleep(300 * time.Millisecond)
 	}
@@ -110,10 +99,13 @@ func InfoHandler(message *telegram.NewMessage) error {
 
 func LaughHandler(message *telegram.NewMessage) error {
 	text := strings.ToLower(message.Text())
-	if len(uniqueCharacters(text)) <= 8 && (strings.Contains(text, "ах") || strings.Contains(text, "ха")) {
+	// Сообщение определяется как смех, если
+	// 1) количество уникальных символов не больше 4 (8 байт);
+	// 2) есть хотя бы раз подряд Х и А
+	if len(utils.UniqueCharacters(text)) <= 8 && (strings.Contains(text, "ах") || strings.Contains(text, "ха")) {
 		for range 15 {
 			res := ""
-			for _, c := range text {
+			for _, c := range text { // Случайная замена буквы на заглавную + выделение
 				if rand.IntN(2) == 1 {
 					res += "<b>" + strings.ToUpper(string(c)) + "</b>"
 				} else {
@@ -121,6 +113,7 @@ func LaughHandler(message *telegram.NewMessage) error {
 				}
 			}
 			message.Edit(res)
+			// Повтор через 800мс
 			time.Sleep(800 * time.Millisecond)
 		}
 	}
@@ -131,8 +124,10 @@ func LaughHandler(message *telegram.NewMessage) error {
 func AnimateHandler(message *telegram.NewMessage) error {
 	mesText := message.Text()
 	text := strings.ToLower(mesText)
+
 	if strings.Contains(strings.Join([]string{"жиза", "имба", "база"}, ";"), text) {
 		for range 10 {
+			// Поочередная замена буквы на заглавную + выделение (по очереди слева направо)
 			for i := range text {
 				res := ""
 				for j, c := range text {
@@ -143,60 +138,24 @@ func AnimateHandler(message *telegram.NewMessage) error {
 					}
 				}
 				message.Edit(res)
+				// Повтор каждые 800мс
 				time.Sleep(800 * time.Millisecond)
 			}
 		}
+
+		// "Моргание" сообщения с паузой 800мс
 		for range 5 {
 			message.Edit("<b>" + strings.ToUpper(text) + "</b>")
 			time.Sleep(800 * time.Millisecond)
 			message.Edit(strings.ToLower(text))
 			time.Sleep(800 * time.Millisecond)
 		}
+
+		// Возврат к первоначальному сообщению
 		message.Edit(mesText)
 	}
+
 	return nil
-}
-
-var ignoredWords = map[string]bool{
-	"кто": true, "кем": true, "чтоли": true, "чем": true, "тем": true,
-	"как": true, "эта": true, "этот": true, "что-то": true, "что": true,
-	"как-то": true, "как-нибудь": true, "нибудь": true, "она": true,
-	"оно": true, "они": true, "это": true, "для": true, "или": true,
-	"его": true, "который": true, "если": true, "без": true, "так": true,
-	"также": true, "даже": true, "чтобы": true, "только": true, "при": true,
-	"про": true, "еще": true, "ещё": true, "там": true, "уже": true,
-	"всё": true, "все": true, "я": true, "меня": true, "мной": true,
-	"мне": true, "вот": true, "когда": true, "тогда": true, "тот": true,
-	"тут": true, "тоже": true, "раз": true, "где": true, "тобой": true,
-	"тебе": true, "тебя": true, "себя": true, "собой": true, "него": true,
-	"неё": true, "после": true, "нет": true, "был": true, "есть": true,
-}
-
-var censoredWords = map[string]bool{
-	"хуй": true, "хуи": true, "пиздец": true, "пизда": true, "ебать": true,
-	"ебал": true, "ахуеть": true, "охуеть": true, "опиздохуеть": true,
-	"блять": true, "бля": true, "блядь": true, "бляздец": true, "гандон": true,
-	"гондон": true, "нахуй": true, "нахуя": true, "разъебать": true,
-	"разъебанный": true, "ёбанный": true, "ебанный": true, "наебать": true,
-	"уебок": true, "уёбок": true, "уебать": true, "хуесос": true, "похуй": true,
-	"нихуя": true, "охуенно": true, "охуенный": true, "охуенная": true,
-	"охуенное": true, "хуесосик": true, "хуесосина": true, "хуесосище": true,
-	"долбаёб": true, "долбаеб": true, "далбаеб": true, "далбаёб": true,
-	"ебало": true, "залупа": true, "блядина": true, "залупы": true,
-	"блядины": true, "еблан": true, "еблана": true, "пиздопротивный": true,
-	"пиздопротивно": true, "пиздопротивное": true, "пиздопротивная": true,
-	"схуя": true, "схуяли": true, "идинахуй": true, "динахуй": true,
-	"динаху": true, "зуй": true, "еби": true, "ебите": true, "ебитесь": true,
-	"ебали": true, "заебали": true, "заебли": true, "заебала": true,
-	"заебла": true, "заеб": true, "заебал": true, "уебская": true, "уёбская": true,
-	"уебский": true, "уёбский": true, "злоебучий": true, "злоебучая": true,
-	"злоебучее": true, "злоебучие": true, "нахуячил": true, "нахуячить": true,
-	"нахуячила": true, "нахуячило": true, "еблет": true, "хуепутала": true,
-	"еблетом": true, "еблета": true, "хуепутало": true, "хуепуталом": true,
-	"захуячил": true, "захуячить": true, "захуячила": true, "захуячило": true,
-	"пидор": true, "пидора": true, "пидорас": true, "пидораса": true,
-	"спиздить": true, "спиздил": true, "спиздила": true, "спиздило": true,
-	"упиздил": true, "упиздила": true, "упидить": true, "упиздило": true,
 }
 
 func StatisticsHandler(message *telegram.NewMessage) error {
@@ -269,13 +228,13 @@ func StatisticsHandler(message *telegram.NewMessage) error {
 
 		for _, w := range words {
 			w = strings.Trim(w, ".,!?;:()[]{}<>\"'`")
-			if len(w) < 6 || ignoredWords[w] {
+			if len(w) < 6 || dictionary.IgnoredWords[w] {
 				continue
 			}
 			userWordCount[uid][w]++
 			userTotalWords[uid]++
 
-			if censoredWords[w] {
+			if dictionary.CensoredWords[w] {
 				userCensoredWords[uid]++
 			}
 		}
@@ -347,12 +306,16 @@ func StatisticsHandler(message *telegram.NewMessage) error {
 }
 
 func (c *Client) ClownHandler(message *telegram.NewMessage) error {
+	// Получаем отправителя, если nil => выходим
 	sender := message.Sender
 	if sender == nil {
 		return nil
 	}
+
+	// Если нужный отправитель => ставим реакцию
 	if sender.Username == c.cfg.Clown {
 		message.React("🤡")
 	}
+
 	return nil
 }
