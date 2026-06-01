@@ -111,7 +111,7 @@ func InfoHandler(message *telegram.NewMessage) error {
 func LaughHandler(message *telegram.NewMessage) error {
 	text := strings.ToLower(message.Text())
 	if len(uniqueCharacters(text)) <= 8 && (strings.Contains(text, "ах") || strings.Contains(text, "ха")) {
-		for range 10 {
+		for range 15 {
 			res := ""
 			for _, c := range text {
 				if rand.IntN(2) == 1 {

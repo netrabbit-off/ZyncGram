@@ -1,3 +1,4 @@
 backend/.env
 backend/cache_*.db
 backend/session.dat
+app/node_modules
