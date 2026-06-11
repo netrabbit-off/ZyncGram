@@ -3,11 +3,18 @@ package bot
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/amarnathcjd/gogram/telegram"
 
 	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
 )
+
+type Handler struct {
+	Command string
+	Handler func(*telegram.NewMessage) error
+	Filter  telegram.Filter
+}
 
 type Client struct {
 	cfg      *config.Config
@@ -35,15 +42,19 @@ func (c *Client) Init() {
 	c.Telegram.SetParseMode("html")
 }
 
-func (c *Client) RegisterHandlers() {
-	c.Telegram.OnCommand("ping", PingHandler, telegram.Any(telegram.IsPrivate, telegram.IsGroup))
-	c.Telegram.OnMessage("", c.ClownHandler, telegram.Any(telegram.IsPrivate, telegram.IsGroup))
-	c.Telegram.OnCommand("стата", StatisticsHandler, telegram.IsOutgoing)
-	c.Telegram.OnCommand("люблю", LoveHandler, telegram.IsOutgoing)
-	c.Telegram.OnCommand("119", PlaneHandler, telegram.IsOutgoing)
-	c.Telegram.OnCommand("info", InfoHandler, telegram.IsOutgoing)
-	c.Telegram.OnMessage("", AnimateHandler, telegram.IsOutgoing)
-	c.Telegram.OnMessage("", LaughHandler, telegram.IsOutgoing)
+func (c *Client) RegisterHandlers(handlers []Handler) {
+	outgoingHandlers := []Handler{}
+	for _, handler := range handlers {
+		if handler.Command == "" {
+			c.Telegram.OnMessage("", handler.Handler, handler.Filter)
+		} else {
+			c.Telegram.OnCommand(handler.Command, handler.Handler, handler.Filter)
+		}
+
+		if handler.Filter == telegram.IsOutgoing {
+			outgoingHandlers = append(outgoingHandlers, handler)
+		}
+	}
 
 	c.Telegram.AddRawHandler(
 		nil,
@@ -73,23 +84,11 @@ func (c *Client) RegisterHandlers() {
 						strings.ToLower(msg.Text()),
 					)
 
-					switch text {
-
-					case "/119":
-						PlaneHandler(&msg)
-
-					case "/люблю":
-						LoveHandler(&msg)
-
-					case "/info":
-						InfoHandler(&msg)
-
-					case "/стата":
-						StatisticsHandler(&msg)
+					for _, handler := range outgoingHandlers {
+						if text == "/"+handler.Command || handler.Command == "" {
+							handler.Handler(&msg)
+						}
 					}
-
-					AnimateHandler(&msg)
-					LaughHandler(&msg)
 
 				}(int64(u.ChannelID))
 			}
@@ -102,4 +101,14 @@ func (c *Client) RegisterHandlers() {
 
 func (c *Client) Start() {
 	c.Telegram.Idle()
+}
+
+func (c *Client) Edit(message *telegram.NewMessage, newText string) error {
+	_, err := message.Edit(newText)
+	if waitSeconds := telegram.GetFloodWait(err); waitSeconds > 0 {
+		time.Sleep(time.Duration(waitSeconds) * time.Second)
+		c.Edit(message, newText)
+	}
+
+	return err
 }

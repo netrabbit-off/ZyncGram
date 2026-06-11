@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"sort"
 	"strconv"
@@ -12,26 +13,26 @@ import (
 	"github.com/netrabbit-off/ZyncGram/backend/pkg/utils"
 )
 
-func PingHandler(message *telegram.NewMessage) error {
+func (c *Client) PingHandler(message *telegram.NewMessage) error {
 	message.Reply("<b>Pong</b>")
 
 	return nil
 }
 
-func PlaneHandler(message *telegram.NewMessage) error {
+func (c *Client) PlaneHandler(message *telegram.NewMessage) error {
 	plane := "🛫"
-	message.Edit("." + strings.Repeat(" ", 44) + "🏬") // Первый кадр - пустота и здание в конце
-	for i := range 23 {                               // Анимация полета
+	c.Edit(message, "."+strings.Repeat(" ", 44)+"🏬") // Первый кадр - пустота и здание в конце
+	for i := range 23 {                              // Анимация полета
 		// Перемещение самолета на 2 клетки за кадр && пауза 300мс
-		message.Edit("." + strings.Repeat(" ", i*2) + plane + strings.Repeat(" ", 45-i*2) + "🏬")
+		c.Edit(message, "."+strings.Repeat(" ", i*2)+plane+strings.Repeat(" ", 45-i*2)+"🏬")
 		time.Sleep(300 * time.Millisecond)
 	}
-	message.Edit("🔥")
+	c.Edit(message, "🔥")
 
 	return nil
 }
 
-func LoveHandler(message *telegram.NewMessage) error {
+func (c *Client) LoveHandler(message *telegram.NewMessage) error {
 	heart1 := strings.Join([]string{
 		"◻️◻️◻️◻️◻️◻️◻️◻️◻️◻️◻️",
 		"◻️◻️🟥🟥🟥◻️🟥🟥🟥◻️◻️",
@@ -57,47 +58,50 @@ func LoveHandler(message *telegram.NewMessage) error {
 	}, "\n")
 
 	for range 10 {
-		message.Edit(heart1)
+		c.Edit(message, heart1)
 		time.Sleep(1300 * time.Millisecond)
-		message.Edit(heart2)
+		c.Edit(message, heart2)
 		time.Sleep(1 * time.Second)
 	}
 
 	return nil
 }
 
-func InfoHandler(message *telegram.NewMessage) error {
+func (c *Client) InfoHandler(message *telegram.NewMessage) error {
 	if !message.IsReply() {
 		sender := message.Sender
 		senderID := message.ChatID()
 		if sender != nil {
 			senderID = sender.ID
 		}
-		message.Edit(strings.Join([]string{
-			"<b>ChatID</b>: <code>" + strconv.FormatInt(message.ChatID(), 10) + "</code>",
-			"<b>SenderID</b>: <code>" + strconv.FormatInt(senderID, 10) + "</code>",
-			"<b>MessageID</b>: <code>" + strconv.FormatInt(int64(message.ID), 10) + "</code>\n",
-		}, "\n"))
+		c.Edit(message, fmt.Sprintf(
+			"<b>ChatID</b>: <code>%d</code>\n"+
+				"<b>SenderID</b>: <code>%d</code>\n"+
+				"<b>MessageID</b>: <code>%d</code>\n",
+			message.ChatID(), senderID, message.ID,
+		))
 	} else {
 		repMes, err := message.GetReplyMessage()
 		if err != nil && repMes.ID != 0 {
 			return err
 		}
 
-		message.Edit(strings.Join([]string{
-			"<b>ChatID</b>: <code>" + strconv.FormatInt(repMes.ChatID(), 10) + "</code>",
-			"<b>SenderID</b>: <code>" + strconv.FormatInt(repMes.Sender.ID, 10) + "</code>",
-			"<b>MessageID</b>: <code>" + strconv.FormatInt(int64(repMes.ID), 10) + "</code>\n",
-			"<b>Кол-во символов</b>: " + strconv.FormatInt(int64(len(repMes.Text())), 10),
-			"<b>Кол-во абзацев</b>: " + strconv.FormatInt(int64(len(strings.Split(repMes.Text(), "\n"))), 10),
-			"<b>Кол-во слов</b>: " + strconv.FormatInt(int64(len(strings.Split(repMes.Text(), " "))), 10),
-		}, "\n"))
+		c.Edit(message, fmt.Sprintf(
+			"<b>ChatID</b>: <code>%d</code>\n"+
+				"<b>SenderID</b>: <code>%d</code>\n"+
+				"<b>MessageID</b>: <code>%d</code>\n"+
+				"<b>Кол-во символов</b>: %d\n"+
+				"<b>Кол-во абзацев</b>: %d\n"+
+				"<b>Кол-во слов</b>: %d\n",
+			message.ChatID(), repMes.Sender.ID, repMes.ID,
+			len(repMes.Text()), len(strings.Split(repMes.Text(), "\n")), len(strings.Split(repMes.Text(), " ")),
+		))
 	}
 
 	return nil
 }
 
-func LaughHandler(message *telegram.NewMessage) error {
+func (c *Client) LaughHandler(message *telegram.NewMessage) error {
 	text := strings.ToLower(message.Text())
 	// Сообщение определяется как смех, если
 	// 1) количество уникальных символов не больше 4 (8 байт);
@@ -112,7 +116,7 @@ func LaughHandler(message *telegram.NewMessage) error {
 					res += string(c)
 				}
 			}
-			message.Edit(res)
+			c.Edit(message, res)
 			// Повтор через 800мс
 			time.Sleep(800 * time.Millisecond)
 		}
@@ -121,12 +125,12 @@ func LaughHandler(message *telegram.NewMessage) error {
 	return nil
 }
 
-func AnimateHandler(message *telegram.NewMessage) error {
+func (c *Client) AnimateHandler(message *telegram.NewMessage) error {
 	mesText := message.Text()
 	text := strings.ToLower(mesText)
 
 	if strings.Contains(strings.Join([]string{"жиза", "имба", "база"}, ";"), text) {
-		for range 10 {
+		for range 3 {
 			// Поочередная замена буквы на заглавную + выделение (по очереди слева направо)
 			for i := range text {
 				res := ""
@@ -137,7 +141,7 @@ func AnimateHandler(message *telegram.NewMessage) error {
 						res += string(c)
 					}
 				}
-				message.Edit(res)
+				c.Edit(message, res)
 				// Повтор каждые 800мс
 				time.Sleep(800 * time.Millisecond)
 			}
@@ -145,31 +149,31 @@ func AnimateHandler(message *telegram.NewMessage) error {
 
 		// "Моргание" сообщения с паузой 800мс
 		for range 5 {
-			message.Edit("<b>" + strings.ToUpper(text) + "</b>")
+			c.Edit(message, "<b>"+strings.ToUpper(text)+"</b>")
 			time.Sleep(800 * time.Millisecond)
-			message.Edit(strings.ToLower(text))
+			c.Edit(message, strings.ToLower(text))
 			time.Sleep(800 * time.Millisecond)
 		}
 
 		// Возврат к первоначальному сообщению
-		message.Edit(mesText)
+		c.Edit(message, mesText)
 	}
 
 	return nil
 }
 
-func StatisticsHandler(message *telegram.NewMessage) error {
+func (c *Client) StatisticsHandler(message *telegram.NewMessage) error {
 	chatID := message.ChatID()
 
-	statusMsg, _ := message.Reply("<b>Извлекаю историю сообщений...</b>")
+	c.Edit(message, "<b>Извлекаю историю сообщений...</b>")
 
 	messages, err := message.Client.GetMessages(chatID, &telegram.SearchOption{Limit: 5000})
 	if err != nil {
-		message.Edit("❌ <b>Ошибка при получении истории:</b> <code>" + err.Error() + "</code>")
+		c.Edit(message, "❌ <b>Ошибка при получении истории:</b> <code>"+err.Error()+"</code>")
 		return nil
 	}
 
-	message.Edit("<b>Получено <i>" + strconv.Itoa(len(messages)) + "</i> сообщений. Считаю слова...</b>")
+	c.Edit(message, "<b>Получено <i>"+strconv.Itoa(len(messages))+"</i> сообщений. Считаю слова...</b>")
 
 	// Статистика
 	userWordCount := make(map[int64]map[string]int)
@@ -240,8 +244,6 @@ func StatisticsHandler(message *telegram.NewMessage) error {
 		}
 	}
 
-	message.Client.DeleteMessages(chatID, []int32{statusMsg.ID, message.ID})
-
 	// Отправляем статистику по каждому пользователю
 	for uid, words := range userWordCount {
 		if len(words) == 0 {
@@ -282,6 +284,9 @@ func StatisticsHandler(message *telegram.NewMessage) error {
 		message.Client.SendMessage(chatID, answer)
 		time.Sleep(500 * time.Millisecond)
 	}
+
+	// Удаляю сообщение со статусом получения истории
+	message.Delete()
 
 	// Отправляем общую статистику
 	totalUsers := len(userMsgCount)
