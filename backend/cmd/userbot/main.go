@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/amarnathcjd/gogram/telegram"
+	"github.com/netrabbit-off/ZyncGram/backend/internal/api"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/bot"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
 )
@@ -11,7 +12,6 @@ func main() {
 	client := bot.NewClient(cfg)
 	handlers := []bot.Handler{
 		{Command: "ping", Handler: client.PingHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
-		{Command: "", Handler: client.ClownHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
 		{Command: "", Handler: client.ClownHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
 		{Command: "стата", Handler: client.StatisticsHandler, Filter: telegram.IsOutgoing},
 		{Command: "люблю", Handler: client.LoveHandler, Filter: telegram.IsOutgoing},
@@ -23,5 +23,12 @@ func main() {
 
 	client.Init()
 	client.RegisterHandlers(handlers)
-	client.Start()
+
+	// Запускаем юзербота в фоне
+	go client.Start()
+
+	// Инициируем и запускаем API сервер
+	router := api.CreateRouter()
+	router.InitHandlers()
+	router.Start()
 }
