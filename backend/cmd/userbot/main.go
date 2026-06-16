@@ -21,6 +21,9 @@ func main() {
 		{Command: "", Handler: client.LaughHandler, Filter: telegram.IsOutgoing},
 	}
 
+	as := bot.NewAntiSpam(client.Telegram)
+	client.Telegram.On(telegram.OnMessage, as.Handle)
+
 	client.Init()
 	client.RegisterHandlers(handlers)
 

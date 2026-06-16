@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/amarnathcjd/gogram/telegram"
@@ -317,6 +318,53 @@ func (c *Client) ClownHandler(message *telegram.NewMessage) error {
 	if sender.Username == c.cfg.Clown {
 		message.React("🤡")
 	}
+
+	return nil
+}
+
+type AntiSpam struct {
+	mu     sync.Mutex
+	last   map[int64]time.Time
+	client *telegram.Client
+}
+
+func NewAntiSpam(client *telegram.Client) *AntiSpam {
+	return &AntiSpam{
+		last:   make(map[int64]time.Time),
+		client: client,
+	}
+}
+
+func (a *AntiSpam) Handle(msg *telegram.NewMessage) error {
+	// Только личные сообщения
+	if !msg.IsPrivate() {
+		return nil
+	}
+
+	// Не трогаем контакты
+	if msg.Sender.Contact {
+		return nil
+	}
+
+	uid := msg.Sender.ID
+	// Не баним себя
+	if uid == a.client.Me().ID {
+		return nil
+	}
+
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	now := time.Now()
+	if last, ok := a.last[uid]; ok && now.Sub(last).Seconds() < 1.5 {
+		peer := &telegram.InputPeerUser{
+			UserID:     uid,
+			AccessHash: msg.Sender.AccessHash,
+		}
+		_, err := a.client.ContactsBlock(false, peer)
+		return err
+	}
+	a.last[uid] = now
 
 	return nil
 }
