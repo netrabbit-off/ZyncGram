@@ -21,6 +21,8 @@ func main() {
 		{Command: "", Handler: client.LaughHandler, Filter: telegram.IsOutgoing},
 	}
 
+	// Антиспам хэндлер
+	// TODO Вынести адекватно к остальным хэндлерам
 	as := bot.NewAntiSpam(client.Telegram)
 	client.Telegram.On(telegram.OnMessage, as.Handle)
 
