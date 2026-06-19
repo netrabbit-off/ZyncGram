@@ -12,3 +12,10 @@ func PingHander(ctx *gin.Context) {
 		"message": "PONG!",
 	})
 }
+
+func ProcessMessage(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, map[string]string{
+		"error":   "false",
+		"message": "OK",
+	})
+}
