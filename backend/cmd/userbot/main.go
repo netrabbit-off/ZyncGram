@@ -1,6 +1,13 @@
 package main
 
 import (
+	"log"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
+
 	"github.com/amarnathcjd/gogram/telegram"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/api"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/bot"
@@ -26,14 +33,52 @@ func main() {
 	as := bot.NewAntiSpam(client.Telegram)
 	client.Telegram.On(telegram.OnMessage, as.Handle)
 
+	// Инициализация телеграм клиента
 	client.Init()
 	client.RegisterHandlers(handlers)
 
-	// Запускаем юзербота в фоне
-	go client.Start()
-
-	// Инициируем и запускаем API сервер
+	// Инициализация роутера
 	router := api.CreateRouter()
 	router.InitHandlers()
-	router.Start()
+
+	var wg sync.WaitGroup
+
+	// Запускаем юзербот
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		client.Start()
+	}()
+
+	// Запускаем API сервер
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		router.Start()
+	}()
+
+	// Получение сигнала для выхода
+	exit := make(chan os.Signal, 1)
+	signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
+	<-exit
+
+	// Закрытие соединений
+	client.Telegram.Stop()
+	router.Stop()
+
+	// Ждем завершения обоих горутин
+	done := make(chan struct{}, 1)
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		log.Println("All goroutines finished!")
+	case <-time.After(10 * time.Second):
+		log.Println("Timeout! force exit")
+	}
+
+	log.Println("Exited")
 }
