@@ -8,6 +8,7 @@ import (
 	"github.com/amarnathcjd/gogram/telegram"
 
 	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
+	"github.com/netrabbit-off/ZyncGram/backend/internal/service"
 )
 
 type Handler struct {
@@ -18,10 +19,11 @@ type Handler struct {
 
 type Client struct {
 	cfg      *config.Config
+	Service  *service.StatsService
 	Telegram *telegram.Client
 }
 
-func NewClient(cfg *config.Config) *Client {
+func NewClient(cfg *config.Config, service *service.StatsService) *Client {
 	client, err := telegram.NewClient(telegram.ClientConfig{
 		AppID: cfg.AppID, AppHash: cfg.AppHash,
 	})
@@ -29,7 +31,7 @@ func NewClient(cfg *config.Config) *Client {
 		log.Fatal(err)
 	}
 
-	return &Client{cfg: cfg, Telegram: client}
+	return &Client{cfg: cfg, Service: service, Telegram: client}
 }
 
 func (c *Client) Init() {

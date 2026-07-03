@@ -19,6 +19,10 @@ func (c *Client) PingHandler(message *telegram.NewMessage) error {
 	return nil
 }
 
+func (c *Client) ProcessMessageHandler(message *telegram.NewMessage) error {
+	return c.Service.ProcessMessage(message.Text())
+}
+
 func (c *Client) PlaneHandler(message *telegram.NewMessage) error {
 	plane := "🛫"
 	c.Edit(message, "."+strings.Repeat(" ", 44)+"🏬") // Первый кадр - пустота и здание в конце

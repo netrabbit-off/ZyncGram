@@ -12,11 +12,14 @@ import (
 	"github.com/netrabbit-off/ZyncGram/backend/internal/api"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/bot"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
+	"github.com/netrabbit-off/ZyncGram/backend/internal/repository/redis"
+	"github.com/netrabbit-off/ZyncGram/backend/internal/service"
 )
 
 func main() {
 	cfg := config.LoadConfig()
-	client := bot.NewClient(cfg)
+	statsService := service.NewService(redis.NewClient())
+	client := bot.NewClient(cfg, statsService)
 	handlers := []bot.Handler{
 		{Command: "ping", Handler: client.PingHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
 		{Command: "", Handler: client.ClownHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
@@ -26,6 +29,8 @@ func main() {
 		{Command: "119", Handler: client.PlaneHandler, Filter: telegram.IsOutgoing},
 		{Command: "", Handler: client.AnimateHandler, Filter: telegram.IsOutgoing},
 		{Command: "", Handler: client.LaughHandler, Filter: telegram.IsOutgoing},
+		// Хэндлер для статистики
+		{Command: "", Handler: client.ProcessMessageHandler, Filter: telegram.IsOutgoing},
 	}
 
 	// Антиспам хэндлер

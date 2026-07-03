@@ -38,6 +38,11 @@ func (a *AntiSpam) Handle(message *telegram.NewMessage) error {
 		return nil
 	}
 
+	// Игнорируем медиа
+	if message.IsMedia() {
+		return nil
+	}
+
 	// Не трогаем контакты
 	if message.Sender.Contact {
 		return nil
