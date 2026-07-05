@@ -12,13 +12,14 @@ import (
 )
 
 type Router struct {
-	router *gin.Engine
-	srv    *http.Server
-	cfg    *config.Config
+	router     *gin.Engine
+	controller *controllers.StatsController
+	srv        *http.Server
+	cfg        *config.Config
 }
 
-func CreateRouter() *Router {
-	return &Router{router: gin.Default(), srv: &http.Server{}, cfg: config.LoadConfig()}
+func CreateRouter(controller *controllers.StatsController) *Router {
+	return &Router{router: gin.Default(), controller: controller, srv: &http.Server{}, cfg: config.LoadConfig()}
 }
 
 func (r *Router) InitHandlers() {
@@ -27,6 +28,9 @@ func (r *Router) InitHandlers() {
 		Handler: r.router.Handler(),
 	}
 	r.router.GET("/ping", controllers.PingHander)
+	r.router.GET("/stats/total", r.controller.GetTotalStats)
+	r.router.GET("/stats/week", r.controller.GetWeekStatistic)
+	r.router.GET("/stats/words/top", r.controller.GetWordsTop)
 }
 
 func (r *Router) Start() {

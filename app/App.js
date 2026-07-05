@@ -9,7 +9,6 @@ import {
 // Экраны
 import HomeScreen from './src/screens/HomeScreen';
 import StatsScreen from './src/screens/StatsScreen';
-import FavoritesScreen from './src/screens/FavoritesScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 
 // Контекст
@@ -34,7 +33,7 @@ function AppContent() {
 
             {/* Tab Bar */}
             <View style={[styles.tabBar, { backgroundColor: theme.cardBg, borderBottomColor: theme.border }]}>
-                {['home', 'stats', 'favorites', 'settings'].map(tab => (
+                {['home', 'stats', 'settings'].map(tab => (
                     <TouchableOpacity
                             key={tab}
                             style={[styles.tab, activeTab === tab && { borderBottomColor: theme.accent }]}
@@ -43,7 +42,6 @@ function AppContent() {
                         <Text style={[styles.tabText, { color: activeTab === tab ? theme.accent : theme.subtext }]}>
                             {tab === 'home' && '🏠 Главная'}
                             {tab === 'stats' && '📊 Статистика'}
-                            {tab === 'favorites' && '⭐ Избранное'}
                             {tab === 'settings' && '⚙️ Настройки'}
                         </Text>
                     </TouchableOpacity>
@@ -54,7 +52,6 @@ function AppContent() {
             <ScrollView style={[styles.content, { backgroundColor: theme.background }]}>
                 {activeTab === 'home' && <HomeScreen />}
                 {activeTab === 'stats' && <StatsScreen />}
-                {activeTab === 'favorites' && <FavoritesScreen />}
                 {activeTab === 'settings' && <SettingsScreen />}
             </ScrollView>
         </View>

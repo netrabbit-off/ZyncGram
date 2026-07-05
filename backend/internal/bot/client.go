@@ -58,6 +58,7 @@ func (c *Client) RegisterHandlers(handlers []Handler) {
 		}
 	}
 
+	// Handle updates
 	c.Telegram.AddRawHandler(
 		nil,
 		func(update telegram.Update, tg *telegram.Client) error {
@@ -93,6 +94,9 @@ func (c *Client) RegisterHandlers(handlers []Handler) {
 					}
 
 				}(int64(u.ChannelID))
+
+				//case *telegram.UpdateReaction
+
 			}
 
 			return nil

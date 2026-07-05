@@ -10,6 +10,7 @@ import (
 
 	"github.com/amarnathcjd/gogram/telegram"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/api"
+	"github.com/netrabbit-off/ZyncGram/backend/internal/api/controllers"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/bot"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/repository/redis"
@@ -43,7 +44,7 @@ func main() {
 	client.RegisterHandlers(handlers)
 
 	// Инициализация роутера
-	router := api.CreateRouter()
+	router := api.CreateRouter(controllers.NewStatsController(statsService))
 	router.InitHandlers()
 
 	var wg sync.WaitGroup

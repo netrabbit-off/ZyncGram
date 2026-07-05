@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"slices"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -67,4 +69,62 @@ func (s *StatsService) UpdateWordsTop(messageText string) error {
 	}
 
 	return s.repo.Client.ZRemRangeByRank(ctx, "words:top:total", 0, -50001).Err()
+}
+
+func (s *StatsService) GetWeekStatistic(ctx context.Context) ([]int, error) {
+	weekStats := []int{}
+	date := time.Now()
+	for i := range 7 {
+		value, err := s.repo.Client.Get(ctx, "stats:day:"+date.Add(-time.Duration(i)*24*time.Hour).Format("2006-01-02")).Result()
+		if err != nil {
+			weekStats = append(weekStats, 0)
+			continue
+		}
+
+		res, err := strconv.Atoi(value)
+		if err != nil {
+			return nil, err
+		}
+
+		weekStats = append(weekStats, res)
+	}
+	slices.Reverse(weekStats)
+
+	return weekStats, nil
+}
+
+func (s *StatsService) GetWordsTop(ctx context.Context) (map[string]int, error) {
+	wordsTop := map[string]int{}
+	z, err := s.repo.Client.ZRevRangeWithScores(ctx, "words:top:total", 0, 29).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, i := range z {
+		wordsTop[i.Member.(string)] = int(i.Score)
+	}
+
+	return wordsTop, nil
+}
+
+func (s *StatsService) GetTotalStats(ctx context.Context) (int, int, error) {
+	value, err := s.repo.Client.Get(ctx, "stats:total").Result()
+	if err != nil {
+		return 0, 0, err
+	}
+	totalMessages, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	value, err = s.repo.Client.Get(ctx, "words:total").Result()
+	if err != nil {
+		return 0, 0, err
+	}
+	totalWords, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return totalMessages, totalWords, nil
 }
