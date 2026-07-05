@@ -8,6 +8,7 @@ export const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
     const systemScheme = useColorScheme();
     const [isDarkMode, setIsDarkMode] = useState(systemScheme === 'dark');
+    const [activeTab, setActiveTab] = useState('home');
 
     const toggleTheme = () => setIsDarkMode(prev => !prev);
 
@@ -34,7 +35,7 @@ export const ThemeProvider = ({ children }) => {
     const theme = isDarkMode ? darkTheme : lightTheme;
 
     return (
-        <ThemeContext.Provider value={{ isDarkMode, toggleTheme, theme }}>
+        <ThemeContext.Provider value={{ isDarkMode, toggleTheme, theme, activeTab, setActiveTab }}>
             {children}
         </ThemeContext.Provider>
     );

@@ -7,18 +7,16 @@ import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
 
 const SettingsScreen = () => {
-    const { isDarkMode, toggleTheme, theme } = useContext(ThemeContext);
+    const { isDarkMode, toggleTheme, theme, setActiveTab } = useContext(ThemeContext);
 
     // Открыть GitHub
     const openGitHub = () => {
-        Linking.openURL("https://github.com/yourusername/yourrepo");
+        Linking.openURL("https://github.com/netrabbit-off/ZyncGram");
     };
 
-    // Переход к настройке авто-реакций (пока заглушка)
+    // Переход к настройке авто-реакций
     const goToAutoReactions = () => {
-        Alert.alert("Настройка авто-реакций", "Эта функция будет реализована позже.");
-        // Если у вас есть навигация, раскомментируйте строку ниже:
-        // navigation.navigate('AutoReactions');
+        setActiveTab("reactions")
     };
 
     return (

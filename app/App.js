@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import {
     View,
     Text,
@@ -12,13 +12,14 @@ import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 
 // Контекст
-import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { ThemeContext, ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 // Стили
 import { styles } from './src/styles/styles';
+import ReactionsScreen from './src/screens/ReactionsScreen';
 
 // Главный компонент приложения
 function AppContent() {
-    const [activeTab, setActiveTab] = useState('home');
+    const { activeTab, setActiveTab } = useContext(ThemeContext);
     const { theme } = useTheme();
 
     return (
@@ -36,10 +37,10 @@ function AppContent() {
                 {['home', 'stats', 'settings'].map(tab => (
                     <TouchableOpacity
                             key={tab}
-                            style={[styles.tab, activeTab === tab && { borderBottomColor: theme.accent }]}
+                            style={[styles.tab, (activeTab === tab || activeTab === 'reactions' && tab === 'settings') && { borderBottomColor: theme.accent }]}
                             onPress={() => setActiveTab(tab)}
                         >
-                        <Text style={[styles.tabText, { color: activeTab === tab ? theme.accent : theme.subtext }]}>
+                        <Text style={[styles.tabText, { color: (activeTab === tab || activeTab === 'reactions' && tab === 'settings') ? theme.accent : theme.subtext }]}>
                             {tab === 'home' && '🏠 Главная'}
                             {tab === 'stats' && '📊 Статистика'}
                             {tab === 'settings' && '⚙️ Настройки'}
@@ -53,6 +54,7 @@ function AppContent() {
                 {activeTab === 'home' && <HomeScreen />}
                 {activeTab === 'stats' && <StatsScreen />}
                 {activeTab === 'settings' && <SettingsScreen />}
+                {activeTab === 'reactions' && <ReactionsScreen />}
             </ScrollView>
         </View>
     );
