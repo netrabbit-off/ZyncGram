@@ -16,6 +16,7 @@ import { ThemeContext, ThemeProvider, useTheme } from './src/contexts/ThemeConte
 // Стили
 import { styles } from './src/styles/styles';
 import ReactionsScreen from './src/screens/ReactionsScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 
 // Главный компонент приложения
 function AppContent() {
@@ -55,6 +56,7 @@ function AppContent() {
                 {activeTab === 'stats' && <StatsScreen />}
                 {activeTab === 'settings' && <SettingsScreen />}
                 {activeTab === 'reactions' && <ReactionsScreen />}
+                {activeTab === 'profile' && <ProfileScreen />}
             </ScrollView>
         </View>
     );

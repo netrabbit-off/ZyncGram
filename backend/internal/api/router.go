@@ -12,14 +12,21 @@ import (
 )
 
 type Router struct {
-	router     *gin.Engine
-	controller *controllers.StatsController
-	srv        *http.Server
-	cfg        *config.Config
+	router            *gin.Engine
+	StatsController   *controllers.StatsController
+	ProfileController *controllers.ProfileController
+	srv               *http.Server
+	cfg               *config.Config
 }
 
-func CreateRouter(controller *controllers.StatsController) *Router {
-	return &Router{router: gin.Default(), controller: controller, srv: &http.Server{}, cfg: config.LoadConfig()}
+func CreateRouter(StatsController *controllers.StatsController, ProfileController *controllers.ProfileController) *Router {
+	return &Router{
+		router:            gin.Default(),
+		StatsController:   StatsController,
+		ProfileController: ProfileController,
+		srv:               &http.Server{},
+		cfg:               config.LoadConfig(),
+	}
 }
 
 func (r *Router) InitHandlers() {
@@ -28,9 +35,12 @@ func (r *Router) InitHandlers() {
 		Handler: r.router.Handler(),
 	}
 	r.router.GET("/ping", controllers.PingHander)
-	r.router.GET("/stats/total", r.controller.GetTotalStats)
-	r.router.GET("/stats/week", r.controller.GetWeekStatistic)
-	r.router.GET("/stats/words/top", r.controller.GetWordsTop)
+	r.router.GET("/stats/total", r.StatsController.GetTotalStats)
+	r.router.GET("/stats/week", r.StatsController.GetWeekStatistic)
+	r.router.GET("/stats/words/top", r.StatsController.GetWordsTop)
+
+	r.router.GET("/profile", r.ProfileController.GetProfile)
+	r.router.GET("/profile/photo", r.ProfileController.GetProfilePhoto)
 }
 
 func (r *Router) Start() {

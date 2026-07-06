@@ -16,11 +16,24 @@ const SettingsScreen = () => {
 
     // Переход к настройке авто-реакций
     const goToAutoReactions = () => {
-        setActiveTab("reactions")
+        setActiveTab("reactions");
+    };
+
+    // Переход в профиль
+    const goToProfile = () => {
+        setActiveTab("profile"); // замените на название вашей вкладки
     };
 
     return (
         <View>
+            {/* Профиль */}
+            <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
+                <TouchableOpacity style={[styles.settingRow, { borderBottomWidth: 0 }]} onPress={goToProfile}>
+                    <Text style={[styles.settingLabel, { color: theme.text }]}>👤 Профиль</Text>
+                    <Text style={{ color: theme.subtext, fontSize: 16 }}>›</Text>
+                </TouchableOpacity>
+            </View>
+
             {/* Внешний вид */}
             <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>Внешний вид</Text>

@@ -15,12 +15,15 @@ import (
 	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/repository/redis"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/service"
+	"github.com/netrabbit-off/ZyncGram/backend/internal/service/profile"
 )
 
 func main() {
 	cfg := config.LoadConfig()
 	statsService := service.NewService(redis.NewClient())
 	client := bot.NewClient(cfg, statsService)
+	profileService := profile.NewProfileService(client)
+
 	handlers := []bot.Handler{
 		{Command: "ping", Handler: client.PingHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
 		{Command: "", Handler: client.ClownHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
@@ -44,7 +47,7 @@ func main() {
 	client.RegisterHandlers(handlers)
 
 	// Инициализация роутера
-	router := api.CreateRouter(controllers.NewStatsController(statsService))
+	router := api.CreateRouter(controllers.NewStatsController(statsService), controllers.NewProfileController(profileService))
 	router.InitHandlers()
 
 	var wg sync.WaitGroup
