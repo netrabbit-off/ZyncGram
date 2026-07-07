@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
+import { View, Text, ActivityIndicator, Alert, Image } from "react-native";
 import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
 
@@ -8,21 +8,20 @@ const ProfileScreen = () => {
     const [profile, setProfile] = useState({
         id: "123456789",
         username: "@username",
-        firstName: "Имя",
-        lastName: "Фамилия",
-        bio: "Писать по хуйне, по делу - бан. ХХХ, иди нахуй",
-        avatarUrl: null,
+        firstname: "Имя",
+        lastname: "Фамилия",
+        avatarUrl: "http://127.0.0.1:8080/profile/photo",
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8080/api/profile")
+        fetch("http://127.0.0.1:8080/profile")
             .then((res) => {
                 if (!res.ok) throw new Error("Ошибка загрузки профиля");
                 return res.json();
             })
             .then((data) => {
-                setProfile(data);
+                setProfile(prev => ({ ...prev, ...data.profile} ));
                 setLoading(false);
             })
             .catch((err) => {
@@ -54,36 +53,39 @@ const ProfileScreen = () => {
                 <Text style={[styles.cardTitle, { color: theme.text, textAlign: "center" }]}>👤 Профиль</Text>
 
                 {/* Аватар */}
-                <View style={{ alignItems: "center", marginVertical: 16 }}>
-                    <View style={{
-                        width: 160,
-                        height: 160,
-                        borderRadius: 80,
-                        backgroundColor: theme.accent,
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}>
-                        <Text style={{ fontSize: 36, color: "#fff" }}>
-                            {profile.firstName?.[0] || "👤"}
-                        </Text>
-                    </View>
-                </View>
+<View style={{ alignItems: "center", marginVertical: 16 }}>
+    {profile.avatarUrl !== null ? (
+        <Image
+            source={{ uri: profile.avatarUrl }}
+            style={{
+                width: 160,
+                height: 160,
+                borderRadius: 80,
+                backgroundColor: theme.cardBg,
+            }}
+            onError={() => console.log('Ошибка загрузки аватара')}
+        />
+    ) : (
+        <View style={{
+            width: 160,
+            height: 160,
+            borderRadius: 80,
+            backgroundColor: theme.accent,
+            justifyContent: "center",
+            alignItems: "center",
+        }}>
+            <Text style={{ fontSize: 36, color: "#fff" }}>
+                {profile.firstname?.[0] || "👤"}
+            </Text>
+        </View>
+    )}
+</View>
 
                 {/* Данные профиля */}
-                <View style={{ borderBottomWidth: 1, borderBottomColor: theme.border, paddingVertical: 8 }}>
-                    <Text style={[styles.aboutLabel, { color: theme.subtext }]}>О себе</Text>
-                    <Text 
-                        style={{ color: theme.text, fontSize: 14, marginTop: 4, lineHeight: 20 }}
-                        numberOfLines={3}
-                        ellipsizeMode="tail"
-                    >
-                        {profile.bio || "—"}
-                    </Text>
-                </View>
                 <View style={[styles.aboutRow, { borderBottomColor: theme.border }]}>
                     <Text style={[styles.aboutLabel, { color: theme.subtext }]}>Имя</Text>
                     <Text style={[styles.aboutValue, { color: theme.text }]}>
-                        {profile.firstName} {profile.lastName || ""}
+                        {profile.firstname} {profile.lastname || ""}
                     </Text>
                 </View>
                 <View style={[styles.aboutRow, { borderBottomColor: theme.border }]}>

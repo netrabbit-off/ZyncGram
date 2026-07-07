@@ -19,8 +19,12 @@ import (
 )
 
 func main() {
+	redisClient := redis.NewClient()
 	cfg := config.LoadConfig()
-	statsService := service.NewService(redis.NewClient())
+
+	statsService := service.NewService(redisClient)
+	settingsService := service.NewSettingsService(redisClient)
+
 	client := bot.NewClient(cfg, statsService)
 	profileService := profile.NewProfileService(client)
 
@@ -47,7 +51,7 @@ func main() {
 	client.RegisterHandlers(handlers)
 
 	// Инициализация роутера
-	router := api.CreateRouter(controllers.NewStatsController(statsService), controllers.NewProfileController(profileService))
+	router := api.CreateRouter(controllers.NewStatsController(statsService), controllers.NewProfileController(profileService), controllers.NewSettingsController(settingsService))
 	router.InitHandlers()
 
 	var wg sync.WaitGroup

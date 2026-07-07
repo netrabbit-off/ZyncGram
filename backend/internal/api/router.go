@@ -12,20 +12,22 @@ import (
 )
 
 type Router struct {
-	router            *gin.Engine
-	StatsController   *controllers.StatsController
-	ProfileController *controllers.ProfileController
-	srv               *http.Server
-	cfg               *config.Config
+	router             *gin.Engine
+	StatsController    *controllers.StatsController
+	ProfileController  *controllers.ProfileController
+	SettingsController *controllers.SettingsController
+	srv                *http.Server
+	cfg                *config.Config
 }
 
-func CreateRouter(StatsController *controllers.StatsController, ProfileController *controllers.ProfileController) *Router {
+func CreateRouter(StatsController *controllers.StatsController, ProfileController *controllers.ProfileController, SettingsController *controllers.SettingsController) *Router {
 	return &Router{
-		router:            gin.Default(),
-		StatsController:   StatsController,
-		ProfileController: ProfileController,
-		srv:               &http.Server{},
-		cfg:               config.LoadConfig(),
+		router:             gin.Default(),
+		StatsController:    StatsController,
+		ProfileController:  ProfileController,
+		SettingsController: SettingsController,
+		srv:                &http.Server{},
+		cfg:                config.LoadConfig(),
 	}
 }
 
@@ -41,6 +43,9 @@ func (r *Router) InitHandlers() {
 
 	r.router.GET("/profile", r.ProfileController.GetProfile)
 	r.router.GET("/profile/photo", r.ProfileController.GetProfilePhoto)
+
+	r.router.GET("/settings", r.SettingsController.GetSettings)
+	r.router.POST("/settings/reactions", r.SettingsController.SetReactions)
 }
 
 func (r *Router) Start() {

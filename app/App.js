@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import {
     View,
     Text,
@@ -38,10 +38,10 @@ function AppContent() {
                 {['home', 'stats', 'settings'].map(tab => (
                     <TouchableOpacity
                             key={tab}
-                            style={[styles.tab, (activeTab === tab || activeTab === 'reactions' && tab === 'settings') && { borderBottomColor: theme.accent }]}
+                            style={[styles.tab, (activeTab === tab || (activeTab === 'reactions' || activeTab === 'profile') && tab === 'settings') && { borderBottomColor: theme.accent }]}
                             onPress={() => setActiveTab(tab)}
                         >
-                        <Text style={[styles.tabText, { color: (activeTab === tab || activeTab === 'reactions' && tab === 'settings') ? theme.accent : theme.subtext }]}>
+                        <Text style={[styles.tabText, { color: (activeTab === tab || (activeTab === 'reactions' || activeTab === 'profile') && tab === 'settings') ? theme.accent : theme.subtext }]}>
                             {tab === 'home' && '🏠 Главная'}
                             {tab === 'stats' && '📊 Статистика'}
                             {tab === 'settings' && '⚙️ Настройки'}

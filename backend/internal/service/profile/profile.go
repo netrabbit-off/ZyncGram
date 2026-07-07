@@ -2,8 +2,6 @@ package profile
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/amarnathcjd/gogram/telegram"
@@ -39,7 +37,7 @@ func (s *ProfileService) GetProfile() (map[string]string, error) {
 	return profile, nil
 }
 
-func (s *ProfileService) getProfilePhotoInfo() (*telegram.PhotoObj, error) {
+func (s *ProfileService) getProfilePhotoID() (int64, error) {
 	photosPhotos, err := s.client.Telegram.PhotosGetUserPhotos(
 		&telegram.InputUserSelf{},
 		0,
@@ -47,7 +45,7 @@ func (s *ProfileService) getProfilePhotoInfo() (*telegram.PhotoObj, error) {
 		1,
 	)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	var photo *telegram.PhotoObj
@@ -60,23 +58,21 @@ func (s *ProfileService) getProfilePhotoInfo() (*telegram.PhotoObj, error) {
 		photo = p.Photos[0].(*telegram.PhotoObj)
 
 	default:
-		return nil, errors.New("no photo")
+		return 0, errors.New("no profile photo")
 	}
 
-	return photo, nil
+	return photo.ID, nil
 }
 
 func (s *ProfileService) GetProfilePhoto() ([]byte, error) {
-	photo, err := s.getProfilePhotoInfo()
+	photoID, err := s.getProfilePhotoID()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("%x\n", photo.FileReference)
-	fmt.Println(len(photo.FileReference))
 
 	loc := &telegram.InputPeerPhotoFileLocation{
 		Peer:    &telegram.InputPeerSelf{},
-		PhotoID: photo.ID,
+		PhotoID: photoID,
 		Big:     true,
 	}
 	res, err := s.client.Telegram.UploadGetFile(&telegram.UploadGetFileParams{
@@ -85,7 +81,7 @@ func (s *ProfileService) GetProfilePhoto() ([]byte, error) {
 		Limit:    1024 * 1024,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 	file := res.(*telegram.UploadFileObj)
 
