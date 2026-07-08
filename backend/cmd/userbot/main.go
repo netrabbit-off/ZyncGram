@@ -25,12 +25,12 @@ func main() {
 	statsService := service.NewService(redisClient)
 	settingsService := service.NewSettingsService(redisClient)
 
-	client := bot.NewClient(cfg, statsService)
+	client := bot.NewClient(cfg, statsService, settingsService)
 	profileService := profile.NewProfileService(client)
 
 	handlers := []bot.Handler{
 		{Command: "ping", Handler: client.PingHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
-		{Command: "", Handler: client.ClownHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
+		{Command: "", Handler: client.ReactionHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
 		{Command: "стата", Handler: client.StatisticsHandler, Filter: telegram.IsOutgoing},
 		{Command: "люблю", Handler: client.LoveHandler, Filter: telegram.IsOutgoing},
 		{Command: "info", Handler: client.InfoHandler, Filter: telegram.IsOutgoing},

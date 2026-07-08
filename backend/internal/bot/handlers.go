@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"context"
 	"fmt"
 	"math/rand/v2"
 	"sort"
@@ -20,7 +21,7 @@ func (c *Client) PingHandler(message *telegram.NewMessage) error {
 }
 
 func (c *Client) ProcessMessageHandler(message *telegram.NewMessage) error {
-	return c.Service.ProcessMessage(message.Text())
+	return c.StatsService.ProcessMessage(message.Text())
 }
 
 func (c *Client) PlaneHandler(message *telegram.NewMessage) error {
@@ -310,16 +311,26 @@ func (c *Client) StatisticsHandler(message *telegram.NewMessage) error {
 	return nil
 }
 
-func (c *Client) ClownHandler(message *telegram.NewMessage) error {
+func (c *Client) ReactionHandler(message *telegram.NewMessage) error {
 	// Получаем отправителя, если nil => выходим
 	sender := message.Sender
 	if sender == nil {
 		return nil
 	}
 
+	reactionRules, err := c.SettingsService.GetSettings(context.Background())
+	if err != nil || reactionRules == nil {
+		return err
+	}
+
 	// Если нужный отправитель => ставим реакцию
-	if sender.Username == c.cfg.Clown {
-		message.React("🤡")
+	for _, rule := range reactionRules.Reactions {
+		if (sender.Username == rule.User || string(sender.ID) == rule.User) && rule.Enabled {
+			if message.IsPrivate() && rule.Scope == "private" || message.IsGroup() && (rule.Scope == "group") || rule.Scope == "both" {
+				message.React(rule.Emoji)
+			}
+			break
+		}
 	}
 
 	return nil

@@ -18,12 +18,13 @@ type Handler struct {
 }
 
 type Client struct {
-	cfg      *config.Config
-	Service  *service.StatsService
-	Telegram *telegram.Client
+	cfg             *config.Config
+	StatsService    *service.StatsService
+	SettingsService *service.SettingsService
+	Telegram        *telegram.Client
 }
 
-func NewClient(cfg *config.Config, service *service.StatsService) *Client {
+func NewClient(cfg *config.Config, statsService *service.StatsService, settingsService *service.SettingsService) *Client {
 	client, err := telegram.NewClient(telegram.ClientConfig{
 		AppID: cfg.AppID, AppHash: cfg.AppHash,
 	})
@@ -31,7 +32,7 @@ func NewClient(cfg *config.Config, service *service.StatsService) *Client {
 		log.Fatal(err)
 	}
 
-	return &Client{cfg: cfg, Service: service, Telegram: client}
+	return &Client{cfg: cfg, StatsService: statsService, SettingsService: settingsService, Telegram: client}
 }
 
 func (c *Client) Init() {
