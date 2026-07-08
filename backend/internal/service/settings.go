@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/netrabbit-off/ZyncGram/backend/internal/repository/redis"
 	"github.com/netrabbit-off/ZyncGram/backend/pkg/models"
@@ -32,6 +33,9 @@ func (s *SettingsService) setSettings(ctx context.Context, settings *models.Sett
 func (s *SettingsService) GetSettings(ctx context.Context) (*models.Settings, error) {
 	settingsJson, err := s.repo.Client.Get(ctx, "settings").Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return &models.Settings{Reactions: []models.Reaction{}}, nil
+		}
 		return nil, err
 	}
 

@@ -5,7 +5,9 @@ type Settings struct {
 }
 
 type Reaction struct {
-	UserID   int    `json:"userid"`
-	UserName string `json:"username"`
-	Emoji    string `json:"emoji"`
+	ID      string `json:"id"`
+	User    string `json:"user"`
+	Emoji   string `json:"emoji"`
+	Scope   string `json:"scope"`
+	Enabled bool   `json:"enabled"`
 }

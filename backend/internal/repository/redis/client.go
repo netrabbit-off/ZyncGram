@@ -15,3 +15,5 @@ func NewClient() *RedisClient {
 
 	return &RedisClient{Client: client}
 }
+
+var Nil redis.Error = redis.Nil

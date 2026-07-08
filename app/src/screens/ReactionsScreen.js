@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { View, Text, TextInput, Switch, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
@@ -17,6 +17,23 @@ const AutoReactionsScreen = () => {
 
     // Варианты эмодзи
     const emojiOptions = ["❤️‍🔥", "💘", "❤️", "🔥", "🍌", "🤡"];
+
+    useEffect(() => {
+        fetch("http://127.0.0.1:8080/settings")
+            .then(res => {
+                if (!res.ok) throw new Error("Ошибка загрузки настроек");
+                return res.json();
+            })
+            .then(data => {
+                if (data.settings.reactions) {
+                    setRules(data.settings.reactions);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Alert.alert("Ошибка", "Не удалось загрузить настройки");
+            });
+    }, []);
 
     const addRule = () => {
         if (!newUser.trim()) {
@@ -50,8 +67,24 @@ const AutoReactionsScreen = () => {
         ));
     };
 
-    const saveSettings = () => {
-        Alert.alert("Настройки сохранены", "Здесь будет отправка на сервер или сохранение в хранилище.");
+    const saveSettings = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:8080/settings/reactions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(rules),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`);
+            }
+
+            Alert.alert("Успешно", "Настройки сохранены");
+        } catch (error) {
+            Alert.alert("Ошибка", "Не удалось сохранить настройки: " + error.message);
+        }
     };
 
     const selectEmoji = (emoji) => {

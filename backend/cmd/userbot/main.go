@@ -52,6 +52,8 @@ func main() {
 
 	// Инициализация роутера
 	router := api.CreateRouter(controllers.NewStatsController(statsService), controllers.NewProfileController(profileService), controllers.NewSettingsController(settingsService))
+
+	router.EnableCORS()
 	router.InitHandlers()
 
 	var wg sync.WaitGroup
