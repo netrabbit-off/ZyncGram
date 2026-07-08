@@ -325,7 +325,7 @@ func (c *Client) ReactionHandler(message *telegram.NewMessage) error {
 
 	// Если нужный отправитель => ставим реакцию
 	for _, rule := range reactionRules.Reactions {
-		if (sender.Username == rule.User || string(sender.ID) == rule.User) && rule.Enabled {
+		if (sender.Username == rule.User || strconv.FormatInt(sender.ID, 10) == rule.User) && rule.Enabled {
 			if message.IsPrivate() && rule.Scope == "private" || message.IsGroup() && (rule.Scope == "group") || rule.Scope == "both" {
 				message.React(rule.Emoji)
 			}
