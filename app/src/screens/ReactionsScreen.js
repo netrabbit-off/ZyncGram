@@ -2,14 +2,12 @@ import React, { useState, useContext, useEffect } from "react";
 import { View, Text, TextInput, Switch, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
+import { apiRequest } from "../api/client";
 
 const AutoReactionsScreen = () => {
     const { theme } = useContext(ThemeContext);
 
-    const [rules, setRules] = useState([
-        { id: "1", user: "user123", emoji: "❤️", scope: "both", enabled: true },
-        { id: "2", user: "john_doe", emoji: "👍", scope: "private", enabled: true },
-    ]);
+    const [rules, setRules] = useState([]);
 
     const [newUser, setNewUser] = useState("");
     const [newEmoji, setNewEmoji] = useState("❤️");
@@ -19,20 +17,9 @@ const AutoReactionsScreen = () => {
     const emojiOptions = ["❤️‍🔥", "💘", "❤️", "🔥", "🍌", "🤡"];
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8080/settings")
-            .then(res => {
-                if (!res.ok) throw new Error("Ошибка загрузки настроек");
-                return res.json();
-            })
-            .then(data => {
-                if (data.settings.reactions) {
-                    setRules(data.settings.reactions);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                Alert.alert("Ошибка", "Не удалось загрузить настройки");
-            });
+        apiRequest("/settings").then(data => {
+            if (data.data.reactions) setRules(data.data.reactions);
+        })
     }, []);
 
     const addRule = () => {
@@ -68,23 +55,7 @@ const AutoReactionsScreen = () => {
     };
 
     const saveSettings = async () => {
-        try {
-            const response = await fetch("http://127.0.0.1:8080/settings/reactions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(rules),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`);
-            }
-
-            Alert.alert("Успешно", "Настройки сохранены");
-        } catch (error) {
-            Alert.alert("Ошибка", "Не удалось сохранить настройки: " + error.message);
-        }
+        await apiRequest("/settings/reactions", "POST", rules)
     };
 
     const selectEmoji = (emoji) => {

@@ -5,6 +5,7 @@ import { Text, View } from "react-native";
 import { ThemeContext } from "../contexts/ThemeContext";
 // Стили
 import { styles } from "../styles/styles";
+import { apiRequest } from "../api/client";
 
 const StatsScreen = () => {
     const { theme } = useContext(ThemeContext);
@@ -15,49 +16,30 @@ const StatsScreen = () => {
     });
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8080/stats/words/top")
-            .then(res => {
-            if (!res.ok) throw new Error('Ошибка загрузки: ' + res.status);
-                return res.json();
-            })
+        apiRequest("/stats/words/top")
             .then(data => {
-                // data = { error: false, wordsTop: { ... } }
                 if (data.error) {
                     console.warn('Сервер вернул ошибку:', data);
                     return;
                 }
-                const wordsObject = data.wordsTop || {};
+
+                const wordsObject = data.data || {};
                 const newTopWords = Object.entries(wordsObject).map(([word, count]) => ({
                     word,
                     count
                 }));
-                // Сортируем по убыванию количества
+
                 newTopWords.sort((a, b) => b.count - a.count);
                     setStats(prev => ({ ...prev, topWords: newTopWords }));
                 })
-            .catch(error => {
-                console.error('Ошибка при загрузке топ-слов:', error);
-                // Можно оставить пустой массив или показать уведомление
-            });
-
-        fetch("http://127.0.0.1:8080/stats/total")
-            .then(res => {
-            if (!res.ok) throw new Error('Ошибка загрузки: ' + res.status);
-                return res.json();
-            })
+        apiRequest("/stats/total")
             .then(data => {
-                // data = { error: false, wordsTop: { ... } }
-                if (data.error) {
-                    console.warn('Сервер вернул ошибку:', data);
-                    return;
-                }
-                setStats(prev => ({ ...prev, total: { messages: data.total.messages, words: data.total.words } }))
-                })
-            .catch(error => {
-                console.error('Ошибка при загрузке топ-слов:', error);
-                // Можно оставить пустой массив или показать уведомление
-            });
-    }, []); // пустой массив – запрос только при первом рендере
+                setStats(prev => ({
+                    ...prev, 
+                    total: { messages: data.data.total.messages, words: data.data.total.words } 
+                }))
+            })
+    }, []);
 
 
     return (

@@ -1,7 +1,8 @@
 import { useContext, useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, Alert, Image } from "react-native";
+import { View, Text, ActivityIndicator, Image } from "react-native";
 import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
+import { apiRequest } from "../api/client";
 
 const ProfileScreen = () => {
     const { theme } = useContext(ThemeContext);
@@ -15,20 +16,11 @@ const ProfileScreen = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8080/profile")
-            .then((res) => {
-                if (!res.ok) throw new Error("Ошибка загрузки профиля");
-                return res.json();
-            })
+        apiRequest("/profile")
             .then((data) => {
-                setProfile(prev => ({ ...prev, ...data.profile} ));
+                setProfile(prev => ({ ...prev, ...data.data} ));
                 setLoading(false);
             })
-            .catch((err) => {
-                console.error(err);
-                Alert.alert("Ошибка", "Не удалось загрузить профиль");
-                setLoading(false);
-            });
     }, []);
 
     if (loading) {

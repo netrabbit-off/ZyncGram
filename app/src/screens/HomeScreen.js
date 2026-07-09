@@ -5,25 +5,23 @@ import { Text, View, TouchableOpacity } from "react-native";
 import { ThemeContext } from "../contexts/ThemeContext";
 // Стили
 import { styles } from "../styles/styles";
+import { apiRequest } from "../api/client";
 
 const HomeScreen = () => {
     const { theme } = useContext(ThemeContext);
-    const [weekStats, setWeekStats] = useState([12, 8, 15, 20, 18, 25, 10]);
-    const [botActive, setBotActive] = useState(true);
+    const [weekStats, setWeekStats] = useState([0, 0, 0, 0, 0, 0, 0]);
+    const [botActive, setBotActive] = useState(false);
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8080/stats/week")
-            .then((res) => res.json().then(data => setWeekStats(data.weekStats)))
+        apiRequest("/stats/week").then(data => setWeekStats(data.data))
     }, [])
     
     let weekSum = weekStats.reduce((acc, curr) => acc + curr, 0)
-
-    // === Вычисление тренда ===
     const today = weekStats[6] || 0;
     const yesterday = weekStats[5] || 0;
     let trendPercent = 0;
     let trendDirection = '▲';
-    let trendColor = '#27ae60'; // зелёный для роста
+    let trendColor = '#27ae60';
 
     if (yesterday > 0) {
         trendPercent = ((today - yesterday) / yesterday) * 100;
@@ -32,13 +30,12 @@ const HomeScreen = () => {
             trendColor = '#27ae60';
         } else if (trendPercent < 0) {
             trendDirection = '▼';
-            trendColor = '#e74c3c'; // красный для падения
+            trendColor = '#e74c3c';
         } else {
             trendDirection = '−';
-            trendColor = '#f39c12'; // жёлтый/оранжевый для нуля
+            trendColor = '#f39c12';
         }
     } else {
-        // Если вчера было 0, а сегодня > 0 – показываем +100%
         if (today > 0) {
             trendPercent = 100;
             trendDirection = '▲';
@@ -50,7 +47,6 @@ const HomeScreen = () => {
         }
     }
 
-    // Округляем и форматируем
     const trendDisplay = Math.round(trendPercent);
     const trendSign = trendPercent > 0 ? '+' : '';
 
