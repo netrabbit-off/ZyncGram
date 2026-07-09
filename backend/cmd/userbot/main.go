@@ -22,7 +22,7 @@ func main() {
 	redisClient := redis.NewClient()
 	cfg := config.LoadConfig()
 
-	statsService := service.NewService(redisClient)
+	statsService := service.NewStatsService(redisClient)
 	settingsService := service.NewSettingsService(redisClient)
 
 	client := bot.NewClient(cfg, statsService, settingsService)
@@ -51,7 +51,11 @@ func main() {
 	client.RegisterHandlers(handlers)
 
 	// Инициализация роутера
-	router := api.CreateRouter(controllers.NewStatsController(statsService), controllers.NewProfileController(profileService), controllers.NewSettingsController(settingsService))
+	router := api.CreateRouter(
+		controllers.NewStatsController(statsService),
+		controllers.NewProfileController(profileService),
+		controllers.NewSettingsController(settingsService),
+	)
 
 	router.EnableCORS()
 	router.InitHandlers()

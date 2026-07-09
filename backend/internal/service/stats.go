@@ -17,7 +17,7 @@ type StatsService struct {
 	repo *redis.RedisClient
 }
 
-func NewService(repo *redis.RedisClient) *StatsService {
+func NewStatsService(repo *redis.RedisClient) *StatsService {
 	return &StatsService{repo: repo}
 }
 
@@ -75,7 +75,11 @@ func (s *StatsService) GetWeekStatistic(ctx context.Context) ([]int, error) {
 	weekStats := []int{}
 	date := time.Now()
 	for i := range 7 {
-		value, err := s.repo.Client.Get(ctx, "stats:day:"+date.Add(-time.Duration(i)*24*time.Hour).Format("2006-01-02")).Result()
+		value, err := s.repo.Client.Get(
+			ctx,
+			"stats:day:"+date.Add(-time.Duration(i)*24*time.Hour).Format("2006-01-02"),
+		).Result()
+
 		if err != nil {
 			weekStats = append(weekStats, 0)
 			continue

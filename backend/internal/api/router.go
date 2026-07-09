@@ -20,7 +20,11 @@ type Router struct {
 	cfg                *config.Config
 }
 
-func CreateRouter(StatsController *controllers.StatsController, ProfileController *controllers.ProfileController, SettingsController *controllers.SettingsController) *Router {
+func CreateRouter(
+	StatsController *controllers.StatsController,
+	ProfileController *controllers.ProfileController,
+	SettingsController *controllers.SettingsController,
+) *Router {
 	return &Router{
 		router:             gin.Default(),
 		StatsController:    StatsController,
@@ -36,7 +40,6 @@ func (r *Router) InitHandlers() {
 		Addr:    ":8080",
 		Handler: r.router.Handler(),
 	}
-	r.router.GET("/ping", controllers.PingHander)
 	r.router.GET("/stats/total", r.StatsController.GetTotalStats)
 	r.router.GET("/stats/week", r.StatsController.GetWeekStatistic)
 	r.router.GET("/stats/words/top", r.StatsController.GetWordsTop)

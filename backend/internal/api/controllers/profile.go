@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/service/profile"
+	"github.com/netrabbit-off/ZyncGram/backend/pkg/models"
 )
 
 type ProfileController struct {
@@ -18,25 +19,25 @@ func NewProfileController(service *profile.ProfileService) *ProfileController {
 func (c *ProfileController) GetProfile(ctx *gin.Context) {
 	profile, err := c.service.GetProfile()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error":     true,
-			"errorText": err,
+		ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, map[string]interface{}{
-		"error":   false,
-		"profile": profile,
+	ctx.JSON(http.StatusOK, &models.Response{
+		Error: false,
+		Data:  profile,
 	})
 }
 
 func (c *ProfileController) GetProfilePhoto(ctx *gin.Context) {
 	photo, err := c.service.GetProfilePhoto()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error":     true,
-			"errorText": err,
+		ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
 		})
 		return
 	}

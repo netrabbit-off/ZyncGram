@@ -19,12 +19,17 @@ type Handler struct {
 
 type Client struct {
 	cfg             *config.Config
+	Telegram        *telegram.Client
 	StatsService    *service.StatsService
 	SettingsService *service.SettingsService
-	Telegram        *telegram.Client
 }
 
-func NewClient(cfg *config.Config, statsService *service.StatsService, settingsService *service.SettingsService) *Client {
+func NewClient(
+	cfg *config.Config,
+	statsService *service.StatsService,
+	settingsService *service.SettingsService,
+) *Client {
+
 	client, err := telegram.NewClient(telegram.ClientConfig{
 		AppID: cfg.AppID, AppHash: cfg.AppHash,
 	})
@@ -96,8 +101,6 @@ func (c *Client) RegisterHandlers(handlers []Handler) {
 
 				}(int64(u.ChannelID))
 
-				//case *telegram.UpdateReaction
-
 			}
 
 			return nil
@@ -115,6 +118,16 @@ func (c *Client) Edit(message *telegram.NewMessage, newText string) error {
 	if waitSeconds := telegram.GetFloodWait(err); waitSeconds > 0 {
 		time.Sleep(time.Duration(waitSeconds) * time.Second)
 		c.Edit(message, newText)
+	}
+
+	return err
+}
+
+func (c *Client) React(message *telegram.NewMessage, emoji string) error {
+	err := message.React(emoji)
+	if waitSeconds := telegram.GetFloodWait(err); waitSeconds > 0 {
+		time.Sleep(time.Duration(waitSeconds) * time.Second)
+		c.React(message, emoji)
 	}
 
 	return err

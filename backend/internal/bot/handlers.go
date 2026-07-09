@@ -318,16 +318,17 @@ func (c *Client) ReactionHandler(message *telegram.NewMessage) error {
 		return nil
 	}
 
+	// Получаем настройки, если err или nil => выходим с ошибкой
 	reactionRules, err := c.SettingsService.GetSettings(context.Background())
 	if err != nil || reactionRules == nil {
 		return err
 	}
 
-	// Если нужный отправитель => ставим реакцию
 	for _, rule := range reactionRules.Reactions {
+		// Если нужный отправитель => ставим реакцию
 		if (sender.Username == rule.User || strconv.FormatInt(sender.ID, 10) == rule.User) && rule.Enabled {
 			if message.IsPrivate() && rule.Scope == "private" || message.IsGroup() && (rule.Scope == "group") || rule.Scope == "both" {
-				message.React(rule.Emoji)
+				c.React(message, rule.Emoji)
 			}
 			break
 		}
