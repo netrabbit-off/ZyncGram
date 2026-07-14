@@ -17,10 +17,18 @@ import { ThemeContext, ThemeProvider, useTheme } from './src/contexts/ThemeConte
 import { styles } from './src/styles/styles';
 import ReactionsScreen from './src/screens/ReactionsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import InitialSettingsScreen from './src/screens/InitialScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Главный компонент приложения
 function AppContent() {
     const { activeTab, setActiveTab } = useContext(ThemeContext);
+    AsyncStorage.getItem("isConfigured").then((value) => {
+        if (!value || value === null) {
+            setActiveTab("initial");
+        }
+    })
+
     const { theme } = useTheme();
 
     return (
@@ -57,6 +65,7 @@ function AppContent() {
                 {activeTab === 'settings' && <SettingsScreen />}
                 {activeTab === 'reactions' && <ReactionsScreen />}
                 {activeTab === 'profile' && <ProfileScreen />}
+                {activeTab === 'initial' && <InitialSettingsScreen />}
             </ScrollView>
         </View>
     );
