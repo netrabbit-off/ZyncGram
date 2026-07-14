@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/api/controllers"
+	"github.com/netrabbit-off/ZyncGram/backend/internal/api/middlewares"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
 )
 
@@ -40,6 +41,7 @@ func (r *Router) InitHandlers() {
 		Addr:    ":8080",
 		Handler: r.router.Handler(),
 	}
+
 	r.router.GET("/stats/total", r.StatsController.GetTotalStats)
 	r.router.GET("/stats/week", r.StatsController.GetWeekStatistic)
 	r.router.GET("/stats/words/top", r.StatsController.GetWordsTop)
@@ -62,6 +64,10 @@ func (r *Router) EnableCORS() {
 		}
 		c.Next()
 	})
+}
+
+func (r *Router) EnableAuth() {
+	r.router.Use(middlewares.AuthMiddleware(r.cfg.AuthToken))
 }
 
 func (r *Router) Start() {

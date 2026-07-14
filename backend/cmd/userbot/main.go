@@ -58,6 +58,7 @@ func main() {
 	)
 
 	router.EnableCORS()
+	router.EnableAuth()
 	router.InitHandlers()
 
 	var wg sync.WaitGroup

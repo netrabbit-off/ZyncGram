@@ -9,6 +9,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/amarnathcjd/gogram/telegram"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/repository/redis"
 	"github.com/netrabbit-off/ZyncGram/backend/pkg/dictionary"
 )
@@ -21,15 +22,23 @@ func NewStatsService(repo *redis.RedisClient) *StatsService {
 	return &StatsService{repo: repo}
 }
 
-func (s *StatsService) ProcessMessage(messageText string) error {
+func (s *StatsService) ProcessMessage(message *telegram.NewMessage) error {
 	ctx := context.Background()
-
+	messageText := message.Text()
 	date := time.Now().Format("2006-01-02")
-	if err := s.repo.Incr(ctx, "stats:day:"+date); err != nil {
+
+	if err := s.repo.Incr(ctx, "stats:day:"+date+":total"); err != nil {
 		return err
 	}
-	if err := s.repo.Client.Expire(ctx, "stats:day:"+date, 8*24*time.Hour).Err(); err != nil {
-		return err
+	if message.IsMedia() {
+		if err := s.repo.Incr(ctx, "stats:day:"+date+":media"); err != nil {
+			return err
+		}
+	}
+	if message.IsPrivate() {
+		if err := s.repo.Incr(ctx, "stats:day:"+date+":private"); err != nil {
+			return err
+		}
 	}
 
 	if err := s.repo.Incr(ctx, "stats:total"); err != nil {
@@ -40,7 +49,11 @@ func (s *StatsService) ProcessMessage(messageText string) error {
 		return err
 	}
 
-	return s.UpdateWordsTop(messageText)
+	if !message.IsForward() {
+		return s.UpdateWordsTop(messageText)
+	} else {
+		return nil
+	}
 }
 
 func (s *StatsService) UpdateWordsTop(messageText string) error {
@@ -77,7 +90,7 @@ func (s *StatsService) GetWeekStatistic(ctx context.Context) ([]int, error) {
 	for i := range 7 {
 		value, err := s.repo.Client.Get(
 			ctx,
-			"stats:day:"+date.Add(-time.Duration(i)*24*time.Hour).Format("2006-01-02"),
+			"stats:day:"+date.Add(-time.Duration(i)*24*time.Hour).Format("2006-01-02")+":total",
 		).Result()
 
 		if err != nil {

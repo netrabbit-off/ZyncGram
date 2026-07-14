@@ -21,7 +21,7 @@ func (c *Client) PingHandler(message *telegram.NewMessage) error {
 }
 
 func (c *Client) ProcessMessageHandler(message *telegram.NewMessage) error {
-	return c.StatsService.ProcessMessage(message.Text())
+	return c.StatsService.ProcessMessage(message)
 }
 
 func (c *Client) PlaneHandler(message *telegram.NewMessage) error {
