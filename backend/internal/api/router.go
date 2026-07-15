@@ -51,6 +51,9 @@ func (r *Router) InitHandlers() {
 
 	r.router.GET("/settings", r.SettingsController.GetSettings)
 	r.router.POST("/settings/reactions", r.SettingsController.SetReactions)
+	r.router.POST("/settings/laugh", r.SettingsController.SetLaughEnabled)
+	r.router.POST("/settings/animate/enabled", r.SettingsController.SetAnimateEnabled)
+	r.router.POST("/settings/animate/words", r.SettingsController.SetAnimateWords)
 }
 
 func (r *Router) EnableCORS() {

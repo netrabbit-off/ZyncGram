@@ -52,3 +52,66 @@ func (c *SettingsController) SetReactions(ctx *gin.Context) {
 
 	ctx.Status(http.StatusNoContent)
 }
+
+func (c *SettingsController) SetLaughEnabled(ctx *gin.Context) {
+	laugh := []bool{}
+	if err := ctx.ShouldBindJSON(&laugh); err != nil {
+		ctx.JSON(http.StatusBadRequest, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
+		})
+		return
+	}
+
+	if err := c.service.SetLaughEnabled(ctx.Request.Context(), laugh); err != nil {
+		ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
+
+func (c *SettingsController) SetAnimateEnabled(ctx *gin.Context) {
+	isEnabled := []bool{}
+	if err := ctx.ShouldBindJSON(&isEnabled); err != nil {
+		ctx.JSON(http.StatusBadRequest, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
+		})
+		return
+	}
+
+	if err := c.service.SetAnimateEnabled(ctx.Request.Context(), isEnabled); err != nil {
+		ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
+
+func (c *SettingsController) SetAnimateWords(ctx *gin.Context) {
+	words := []string{}
+	if err := ctx.ShouldBindJSON(&words); err != nil {
+		ctx.JSON(http.StatusBadRequest, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
+		})
+		return
+	}
+
+	if err := c.service.SetAnimateWords(ctx.Request.Context(), words); err != nil {
+		ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}

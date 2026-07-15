@@ -14,7 +14,27 @@ type SettingsService struct {
 }
 
 func NewSettingsService(repo *redis.RedisClient) *SettingsService {
-	return &SettingsService{repo: repo}
+	ctx := context.Background()
+	s := &SettingsService{repo: repo}
+
+	if errors.Is(repo.Client.Get(ctx, "settings").Err(), redis.Nil) {
+		s.initSettings(ctx)
+	}
+
+	return s
+}
+
+func (s *SettingsService) initSettings(ctx context.Context) {
+	settings := &models.Settings{
+		Animate: models.AnimateSettings{
+			Words:     []string{"имба", "жиза", "баз"},
+			IsEnabled: []bool{true, true},
+		},
+		Laugh:     []bool{true, true},
+		AntiSpam:  true,
+		Reactions: []models.Reaction{},
+	}
+	s.setSettings(ctx, settings)
 }
 
 func (s *SettingsService) setSettings(ctx context.Context, settings *models.Settings) error {
@@ -53,6 +73,46 @@ func (s *SettingsService) SetReactions(ctx context.Context, reactions []models.R
 		return err
 	}
 	settings.Reactions = reactions
+
+	return s.setSettings(ctx, settings)
+}
+
+func (s *SettingsService) SetAntiSpam(ctx context.Context, isEnabled bool) error {
+	settings, err := s.GetSettings(ctx)
+	if err != nil {
+		return err
+	}
+	settings.AntiSpam = isEnabled
+
+	return s.setSettings(ctx, settings)
+}
+
+func (s *SettingsService) SetLaughEnabled(ctx context.Context, isEnabled []bool) error {
+	settings, err := s.GetSettings(ctx)
+	if err != nil {
+		return err
+	}
+	settings.Laugh = isEnabled
+
+	return s.setSettings(ctx, settings)
+}
+
+func (s *SettingsService) SetAnimateEnabled(ctx context.Context, isEnabled []bool) error {
+	settings, err := s.GetSettings(ctx)
+	if err != nil {
+		return err
+	}
+	settings.Animate.IsEnabled = isEnabled
+
+	return s.setSettings(ctx, settings)
+}
+
+func (s *SettingsService) SetAnimateWords(ctx context.Context, words []string) error {
+	settings, err := s.GetSettings(ctx)
+	if err != nil {
+		return err
+	}
+	settings.Animate.Words = words
 
 	return s.setSettings(ctx, settings)
 }

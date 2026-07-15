@@ -1,7 +1,15 @@
 package models
 
 type Settings struct {
-	Reactions []Reaction `json:"reactions"`
+	Animate   AnimateSettings `json:"animate"`
+	Laugh     []bool          `json:"laugh"`
+	AntiSpam  bool            `json:"antispam"`
+	Reactions []Reaction      `json:"reactions"`
+}
+
+type AnimateSettings struct {
+	Words     []string `json:"words"`
+	IsEnabled []bool   `json:"enabled"`
 }
 
 type Reaction struct {

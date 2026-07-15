@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -10,10 +11,10 @@ import (
 type AntiSpam struct {
 	mu     sync.Mutex
 	last   map[int64]time.Time
-	client *telegram.Client // TODO Поменять в структуре объект telegram.Client на мой bot.Client
+	client *Client
 }
 
-func NewAntiSpam(client *telegram.Client) *AntiSpam {
+func NewAntiSpam(client *Client) *AntiSpam {
 	return &AntiSpam{
 		last:   make(map[int64]time.Time),
 		client: client,
@@ -21,6 +22,16 @@ func NewAntiSpam(client *telegram.Client) *AntiSpam {
 }
 
 func (a *AntiSpam) Handle(message *telegram.NewMessage) error {
+	settings, err := a.client.SettingsService.GetSettings(context.Background())
+	if err != nil {
+		return err
+	}
+
+	// Если антиспам выключен в настройках
+	if !settings.AntiSpam {
+		return nil
+	}
+
 	uid := message.ChatID()
 
 	// Только личные сообщения
@@ -49,7 +60,7 @@ func (a *AntiSpam) Handle(message *telegram.NewMessage) error {
 	}
 
 	// Не баним себя
-	if uid == a.client.Me().ID {
+	if uid == a.client.Telegram.Me().ID {
 		return nil
 	}
 
@@ -63,7 +74,7 @@ func (a *AntiSpam) Handle(message *telegram.NewMessage) error {
 			AccessHash: message.Sender.AccessHash,
 		}
 		// Блокируем пользователя
-		_, err := a.client.ContactsBlock(false, peerID)
+		_, err := a.client.Telegram.ContactsBlock(false, peerID)
 		message.Reply("<b>🤖 Зафиксирован спам\n\n" +
 			"‼️ Ты забанен за скорострельность ‼️\n" +
 			"<i>Если это ошибка, я скоро разблокирую</b> (ну или нет..)</i>")

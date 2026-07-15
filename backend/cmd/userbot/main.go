@@ -29,7 +29,7 @@ func main() {
 	profileService := profile.NewProfileService(client)
 
 	// Антиспам хэндлер
-	as := bot.NewAntiSpam(client.Telegram)
+	as := bot.NewAntiSpam(client)
 
 	handlers := []bot.Handler{
 		{Command: "ping", Handler: client.PingHandler, Filter: telegram.IsOutgoing},

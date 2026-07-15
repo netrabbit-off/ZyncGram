@@ -107,6 +107,15 @@ func (c *Client) InfoHandler(message *telegram.NewMessage) error {
 }
 
 func (c *Client) LaughHandler(message *telegram.NewMessage) error {
+	settings, err := c.SettingsService.GetSettings(context.Background())
+	if err != nil {
+		return err
+	}
+
+	if message.IsPrivate() && !settings.Laugh[0] || message.IsGroup() && !settings.Laugh[1] {
+		return nil
+	}
+
 	text := strings.ToLower(message.Text())
 	// Сообщение определяется как смех, если
 	// 1) количество уникальных символов не больше 4 (8 байт);
@@ -131,10 +140,20 @@ func (c *Client) LaughHandler(message *telegram.NewMessage) error {
 }
 
 func (c *Client) AnimateHandler(message *telegram.NewMessage) error {
+	settings, err := c.SettingsService.GetSettings(context.Background())
+	if err != nil {
+		return err
+	}
+
+	if message.IsPrivate() && !settings.Animate.IsEnabled[0] || message.IsGroup() && !settings.Animate.IsEnabled[1] {
+		return nil
+	}
+
 	mesText := message.Text()
 	text := strings.ToLower(mesText)
+	_text := utils.UniqueCharacters(text)
 
-	if strings.Contains(strings.Join([]string{"жиза", "имба", "база"}, ";"), text) {
+	if strings.Contains(";"+strings.Join(settings.Animate.Words, ";")+";", ";"+_text+";") {
 		for range 3 {
 			// Поочередная замена буквы на заглавную + выделение (по очереди слева направо)
 			for i := range text {
