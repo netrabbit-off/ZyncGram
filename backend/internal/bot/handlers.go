@@ -15,7 +15,11 @@ import (
 )
 
 func (c *Client) PingHandler(message *telegram.NewMessage) error {
-	message.Reply("<b>Pong</b>")
+	ping := time.Since(time.Unix(int64(message.Date()), 0))
+	message.Reply(
+		fmt.Sprintf(
+			"<b>Pong 🏓\n\n⚡️⚡️ Время отклика</b>: <code>%vms</code>",
+			ping.Milliseconds()))
 
 	return nil
 }
