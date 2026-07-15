@@ -79,6 +79,12 @@ func (s *StatsService) UpdateWordsTop(messageText string) error {
 		if err := s.repo.Client.ZIncrBy(ctx, "words:top:total", 1, word).Err(); err != nil {
 			return err
 		}
+
+		if dictionary.CensoredWords[word] {
+			if err := s.repo.IncrBy(ctx, "words:uncensored", 1); err != nil {
+				return err
+			}
+		}
 	}
 
 	return s.repo.Client.ZRemRangeByRank(ctx, "words:top:total", 0, -50001).Err()
