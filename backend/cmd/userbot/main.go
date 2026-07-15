@@ -28,6 +28,9 @@ func main() {
 	client := bot.NewClient(cfg, statsService, settingsService)
 	profileService := profile.NewProfileService(client)
 
+	// Антиспам хэндлер
+	as := bot.NewAntiSpam(client.Telegram)
+
 	handlers := []bot.Handler{
 		{Command: "ping", Handler: client.PingHandler, Filter: telegram.IsOutgoing},
 		{Command: "ping", Handler: client.PingHandler, Filter: telegram.Any(telegram.IsPrivate, telegram.IsGroup)},
@@ -47,14 +50,12 @@ func main() {
 		{Command: "", Handler: client.AnimateHandler, Filter: telegram.IsOutgoing},
 		{Command: "", Handler: client.LaughHandler, Filter: telegram.IsOutgoing},
 
+		// Хэндлер анти-спам
+		{Command: "", Handler: as.Handle, Filter: telegram.IsPrivate},
+
 		// Хэндлер для статистики
 		{Command: "", Handler: client.ProcessMessageHandler, Filter: telegram.IsOutgoing},
 	}
-
-	// Антиспам хэндлер
-	// TODO Вынести адекватно к остальным хэндлерам
-	as := bot.NewAntiSpam(client.Telegram)
-	client.Telegram.On(telegram.OnMessage, as.Handle)
 
 	// Инициализация телеграм клиента
 	client.Init()
