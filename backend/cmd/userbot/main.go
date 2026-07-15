@@ -15,6 +15,7 @@ import (
 	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/repository/redis"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/service"
+	botservice "github.com/netrabbit-off/ZyncGram/backend/internal/service/bot_service"
 	"github.com/netrabbit-off/ZyncGram/backend/internal/service/profile"
 )
 
@@ -22,10 +23,13 @@ func main() {
 	redisClient := redis.NewClient()
 	cfg := config.LoadConfig()
 
+	var wg sync.WaitGroup
+
 	statsService := service.NewStatsService(redisClient)
 	settingsService := service.NewSettingsService(redisClient)
 
 	client := bot.NewClient(cfg, statsService, settingsService)
+	botService := botservice.NewBotService(client, &wg)
 	profileService := profile.NewProfileService(client)
 
 	// Антиспам хэндлер
@@ -63,16 +67,15 @@ func main() {
 
 	// Инициализация роутера
 	router := api.CreateRouter(
+		controllers.NewBotController(botService),
 		controllers.NewStatsController(statsService),
 		controllers.NewProfileController(profileService),
 		controllers.NewSettingsController(settingsService),
 	)
 
 	router.EnableCORS()
-	router.EnableAuth()
+	//router.EnableAuth()
 	router.InitHandlers()
-
-	var wg sync.WaitGroup
 
 	// Запускаем юзербот
 	wg.Add(1)

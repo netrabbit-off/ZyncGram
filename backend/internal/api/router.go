@@ -14,6 +14,7 @@ import (
 
 type Router struct {
 	router             *gin.Engine
+	BotController      *controllers.BotController
 	StatsController    *controllers.StatsController
 	ProfileController  *controllers.ProfileController
 	SettingsController *controllers.SettingsController
@@ -22,12 +23,14 @@ type Router struct {
 }
 
 func CreateRouter(
+	BotController *controllers.BotController,
 	StatsController *controllers.StatsController,
 	ProfileController *controllers.ProfileController,
 	SettingsController *controllers.SettingsController,
 ) *Router {
 	return &Router{
 		router:             gin.Default(),
+		BotController:      BotController,
 		StatsController:    StatsController,
 		ProfileController:  ProfileController,
 		SettingsController: SettingsController,
@@ -41,6 +44,9 @@ func (r *Router) InitHandlers() {
 		Addr:    ":8080",
 		Handler: r.router.Handler(),
 	}
+
+	r.router.GET("/bot/power", r.BotController.PowerBot)
+	r.router.GET("/bot/status", r.BotController.GetStatus)
 
 	r.router.GET("/stats/total", r.StatsController.GetTotalStats)
 	r.router.GET("/stats/week", r.StatsController.GetWeekStatistic)

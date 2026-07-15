@@ -13,8 +13,8 @@ import (
 
 type Handler struct {
 	Command string
-	Handler func(*telegram.NewMessage) error
 	Filter  telegram.Filter
+	Handler func(*telegram.NewMessage) error
 }
 
 type Client struct {
