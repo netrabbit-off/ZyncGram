@@ -12,6 +12,7 @@ type Config struct {
 	AppHash   string `envconfig:"APP_HASH" required:"true"`
 	Phone     string `envconfig:"PHONE" required:"true"`
 	AuthToken string `envconfig:"AUTH_TOKEN" required:"true"`
+	RedisAddr string `envconfig:"REDIS_ADDR" required:"true"`
 }
 
 func LoadConfig() *Config {

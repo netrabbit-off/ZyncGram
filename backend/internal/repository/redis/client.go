@@ -1,14 +1,17 @@
 package redis
 
-import "github.com/redis/go-redis/v9"
+import (
+	"github.com/netrabbit-off/ZyncGram/backend/internal/config"
+	"github.com/redis/go-redis/v9"
+)
 
 type RedisClient struct {
 	Client *redis.Client
 }
 
-func NewClient() *RedisClient {
+func NewClient(cfg *config.Config) *RedisClient {
 	client := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
+		Addr:     cfg.RedisAddr,
 		Password: "",
 		DB:       0,
 	})

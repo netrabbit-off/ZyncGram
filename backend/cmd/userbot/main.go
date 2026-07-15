@@ -20,8 +20,8 @@ import (
 )
 
 func main() {
-	redisClient := redis.NewClient()
 	cfg := config.LoadConfig()
+	redisClient := redis.NewClient(cfg)
 
 	var wg sync.WaitGroup
 
@@ -74,7 +74,7 @@ func main() {
 	)
 
 	router.EnableCORS()
-	//router.EnableAuth()
+	router.EnableAuth()
 	router.InitHandlers()
 
 	// Запускаем юзербот

@@ -64,14 +64,24 @@ func (c *Client) RegisterHandlers(handlers []Handler) {
 		}
 	}
 
-	// Handle updates
+	// Ловим сырые апдейты
 	c.Telegram.AddRawHandler(
 		nil,
 		func(update telegram.Update, tg *telegram.Client) error {
 			switch u := update.(type) {
 
+			/*
+											Для справки:
+				Методом научного тыка и дебага было выяснено,
+				что Outgoing сообщения в групповых чатах не вылавливаются стоковым хэндлером,
+				поэтому они ловятся здесь в row-хэндлере.
+
+				Эти сообщения поступают сюда, как "UpdateReadChannelInbox".
+			*/
+
 			case *telegram.UpdateReadChannelInbox:
 				go func(channelID int64) {
+					// Получаем нужное сообщение из истории
 					messages, err := tg.GetMessages(
 						channelID,
 						&telegram.SearchOption{
@@ -79,23 +89,27 @@ func (c *Client) RegisterHandlers(handlers []Handler) {
 						},
 					)
 
+					// Обрабатываем исключения
 					if err != nil || len(messages) == 0 {
 						return
 					}
 
 					msg := messages[0]
 
+					// Проверяем, что полученное сообщение - наше
 					if !msg.Message.Out {
 						return
 					}
 
+					// Приводим к нужному формату
 					text := strings.TrimSpace(
 						strings.ToLower(msg.Text()),
 					)
 
+					// В зависимости от команды пускаем по хэндлерам
 					for _, handler := range outgoingHandlers {
 						if text == "/"+handler.Command || handler.Command == "" {
-							handler.Handler(&msg)
+							go handler.Handler(&msg)
 						}
 					}
 
@@ -113,6 +127,7 @@ func (c *Client) Start() {
 	c.Telegram.Idle()
 }
 
+// Рекурсивая функция для редактирования сообщения с обработкой FloodWait исключения
 func (c *Client) Edit(message *telegram.NewMessage, newText string) error {
 	_, err := message.Edit(newText)
 	if waitSeconds := telegram.GetFloodWait(err); waitSeconds > 0 {
@@ -123,6 +138,7 @@ func (c *Client) Edit(message *telegram.NewMessage, newText string) error {
 	return err
 }
 
+// Рекурсивая функция для реакции сообщения с обработкой FloodWait исключения
 func (c *Client) React(message *telegram.NewMessage, emoji string) error {
 	err := message.React(emoji)
 	if waitSeconds := telegram.GetFloodWait(err); waitSeconds > 0 {
