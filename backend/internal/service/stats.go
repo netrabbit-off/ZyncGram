@@ -27,9 +27,12 @@ func (s *StatsService) ProcessMessage(message *telegram.NewMessage) error {
 	messageText := message.Text()
 	date := time.Now().Format("2006-01-02")
 
+	// Пополняем статистику
 	if err := s.repo.Incr(ctx, "stats:day:"+date+":total"); err != nil {
 		return err
 	}
+
+	// Пополняем статистику в зависимости от типа
 	if message.IsMedia() {
 		if err := s.repo.Incr(ctx, "stats:day:"+date+":media"); err != nil {
 			return err
@@ -41,14 +44,17 @@ func (s *StatsService) ProcessMessage(message *telegram.NewMessage) error {
 		}
 	}
 
+	// Пополняем статистику по количеству сообщений
 	if err := s.repo.Incr(ctx, "stats:total"); err != nil {
 		return err
 	}
 
+	// Пополняем статистику по количеству слов
 	if err := s.repo.IncrBy(ctx, "words:total", int64(len(strings.Fields(messageText)))); err != nil {
 		return err
 	}
 
+	// Анализируем только свои тексты
 	if !message.IsForward() {
 		return s.UpdateWordsTop(messageText)
 	} else {
@@ -60,26 +66,32 @@ func (s *StatsService) UpdateWordsTop(messageText string) error {
 	ctx := context.Background()
 
 	for _, word := range strings.Fields(messageText) {
+		// Нормализация
 		word = strings.ToLower(word)
 		word = strings.TrimFunc(word, func(r rune) bool {
 			return !unicode.IsLetter(r)
 		})
+
 		if word == "" {
 			continue
 		}
 
+		// Учитываем только слова больше 3 символов
 		if utf8.RuneCountInString(word) < 3 {
 			continue
 		}
 
+		// Есть ли смысл учитывать это слово
 		if dictionary.IgnoredWords[word] {
 			continue
 		}
 
+		// Пополняем топ
 		if err := s.repo.Client.ZIncrBy(ctx, "words:top:total", 1, word).Err(); err != nil {
 			return err
 		}
 
+		// Если мат => пополняем статистику мата
 		if dictionary.CensoredWords[word] {
 			if err := s.repo.IncrBy(ctx, "words:uncensored", 1); err != nil {
 				return err
@@ -130,24 +142,33 @@ func (s *StatsService) GetWordsTop(ctx context.Context) (map[string]int, error) 
 	return wordsTop, nil
 }
 
-func (s *StatsService) GetTotalStats(ctx context.Context) (int, int, error) {
+func (s *StatsService) GetTotalStats(ctx context.Context) (int, int, int, error) {
 	value, err := s.repo.Client.Get(ctx, "stats:total").Result()
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 	totalMessages, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
 	value, err = s.repo.Client.Get(ctx, "words:total").Result()
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 	totalWords, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
-	return totalMessages, totalWords, nil
+	value, err = s.repo.Client.Get(ctx, "words:uncensored").Result()
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	uncensoredWords, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	return totalMessages, totalWords, uncensoredWords, nil
 }

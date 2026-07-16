@@ -49,7 +49,7 @@ func (c *StatsController) GetWordsTop(ctx *gin.Context) {
 }
 
 func (c *StatsController) GetTotalStats(ctx *gin.Context) {
-	totalMessages, totalWords, err := c.service.GetTotalStats(ctx.Request.Context())
+	totalMessages, totalWords, uncensoredWords, err := c.service.GetTotalStats(ctx.Request.Context())
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{
 			Error:     true,
@@ -62,8 +62,9 @@ func (c *StatsController) GetTotalStats(ctx *gin.Context) {
 		Error: false,
 		Data: map[string]interface{}{
 			"total": map[string]int{
-				"messages": totalMessages,
-				"words":    totalWords,
+				"messages":   totalMessages,
+				"words":      totalWords,
+				"uncensored": uncensoredWords,
 			},
 		},
 	})
