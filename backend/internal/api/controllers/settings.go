@@ -53,6 +53,27 @@ func (c *SettingsController) SetReactions(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
+func (c *SettingsController) SetAntispamEnabled(ctx *gin.Context) {
+	var antispam bool
+	if err := ctx.ShouldBindJSON(&antispam); err != nil {
+		ctx.JSON(http.StatusBadRequest, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
+		})
+		return
+	}
+
+	if err := c.service.SetAntiSpam(ctx.Request.Context(), antispam); err != nil {
+		ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{
+			Error:     true,
+			ErrorText: err,
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
+
 func (c *SettingsController) SetLaughEnabled(ctx *gin.Context) {
 	laugh := []bool{}
 	if err := ctx.ShouldBindJSON(&laugh); err != nil {

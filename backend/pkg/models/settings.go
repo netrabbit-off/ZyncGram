@@ -2,14 +2,14 @@ package models
 
 type Settings struct {
 	Animate   AnimateSettings `json:"animate"`
-	Laugh     []bool          `json:"laugh"`
+	Laugh     []bool          `json:"laugh"` // [privateEnabled bool, groupEnabled bool]
 	AntiSpam  bool            `json:"antispam"`
 	Reactions []Reaction      `json:"reactions"`
 }
 
 type AnimateSettings struct {
 	Words     []string `json:"words"`
-	IsEnabled []bool   `json:"enabled"`
+	IsEnabled []bool   `json:"enabled"` // [privateEnabled bool, groupEnabled bool]
 }
 
 type Reaction struct {
