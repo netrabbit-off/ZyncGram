@@ -9,19 +9,20 @@ import { styles } from "../styles/styles";
 const SettingsScreen = () => {
     const { isDarkMode, toggleTheme, theme, setActiveTab } = useContext(ThemeContext);
 
-    // Открыть GitHub
     const openGitHub = () => {
         Linking.openURL("https://github.com/netrabbit-off/ZyncGram");
     };
-
     // Переход к настройке авто-реакций
     const goToAutoReactions = () => {
         setActiveTab("reactions");
     };
-
+    // Переход к настройке автоматика
+    const goToFeatures = () => {
+        setActiveTab("features");
+    };
     // Переход в профиль
     const goToProfile = () => {
-        setActiveTab("profile"); // замените на название вашей вкладки
+        setActiveTab("profile");
     };
 
     return (
@@ -41,6 +42,14 @@ const SettingsScreen = () => {
                     <Text style={[styles.settingLabel, { color: theme.text }]}>🌙 Тёмная тема</Text>
                     <Switch value={isDarkMode} onValueChange={toggleTheme} />
                 </View>
+            </View>
+
+            {/* Автоматика */}
+            <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
+                <Text style={[styles.cardTitle, { color: theme.text }]}>✨ Автоматика</Text>
+                <TouchableOpacity style={styles.syncButton} onPress={goToFeatures}>
+                    <Text style={[styles.syncButtonText, { color: theme.accent }]}>⚙️ Настроить автоматику</Text>
+                </TouchableOpacity>
             </View>
 
             {/* Авто-реакции */}

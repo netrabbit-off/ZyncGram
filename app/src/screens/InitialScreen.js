@@ -31,7 +31,6 @@ const InitialSettingsScreen = () => {
 
         setLoading(true);
         try {
-            // Сохраняем настройки в AsyncStorage
             await AsyncStorage.setItem("serverAddress", serverAddress.trim());
             await AsyncStorage.setItem("authToken", authToken.trim());
             await AsyncStorage.setItem("isConfigured", "true");

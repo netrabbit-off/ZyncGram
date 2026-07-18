@@ -8,7 +8,6 @@ async function loadApiClient() {
     const storedToken = await AsyncStorage.getItem('authToken');
     if (storedURL) baseURL = storedURL;
     if (storedToken) authToken = storedToken;
-    console.log('[API] Loaded baseURL:', baseURL, 'token:', !!authToken);
 }
 
 function getBaseURL() { return baseURL; }
@@ -29,7 +28,7 @@ export async function apiRequest(endpoint, method = 'GET', body = null) {
             ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
     };
-    if (body) options.body = JSON.stringify(body);
+    if (body !== undefined && body !== null) options.body = JSON.stringify(body);
 
     try {
         const response = await fetch(url, options);

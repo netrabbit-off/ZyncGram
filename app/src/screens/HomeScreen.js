@@ -1,11 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 
-// Контекст
 import { ThemeContext } from "../contexts/ThemeContext";
-// Стили
-import { styles } from "../styles/styles";
 import { apiRequest } from "../api/client";
+import { styles } from "../styles/styles";
 
 const HomeScreen = () => {
     const { theme } = useContext(ThemeContext);
@@ -49,6 +47,15 @@ const HomeScreen = () => {
 
     const trendDisplay = Math.round(trendPercent);
     const trendSign = trendPercent > 0 ? '+' : '';
+
+    const dates = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Месяцы в JS идут с 0
+        dates.push(`${day}.${month}`);
+    }
 
     return (
         <View>
@@ -103,7 +110,7 @@ const HomeScreen = () => {
             <View style={[styles.card, { backgroundColor: theme.cardBg }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>📈 Сообщения (неделя)</Text>
                 <View style={styles.weekChart}>
-                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day, i) => {
+                    {dates.map((day, i) => {
                         const max = Math.max(...weekStats);
                         const heightPercent = (weekStats[i] / max) * 100;
                         return (
