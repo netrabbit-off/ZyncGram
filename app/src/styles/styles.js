@@ -1,29 +1,33 @@
 import { StyleSheet } from "react-native";
 
-// ========== стили ==========
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#0A0C10",
   },
   header: {
     paddingTop: 50,
     paddingBottom: 16,
     paddingHorizontal: 20,
+    backgroundColor: "#0A0C10",
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: "bold",
+    color: "#FFFFFF",
   },
   headerSubtitle: {
     fontSize: 12,
     marginTop: 4,
+    color: "#A0A0A0",
   },
   tabBar: {
     flexDirection: "row",
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    borderBottomColor: "#2A2D34",
+    backgroundColor: "#0A0C10",
   },
   tab: {
     flex: 1,
@@ -34,25 +38,25 @@ export const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 13,
+    color: "#A0A0A0",
   },
   content: {
     flex: 1,
     padding: 16,
+    backgroundColor: "#0A0C10",
   },
   card: {
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    // Тени для светлой темы
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: "#15171E",
+    borderWidth: 1,
+    borderColor: "#2A2D34",
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#FFFFFF",
     marginBottom: 16,
   },
   // --- Статус бота ---
@@ -66,27 +70,78 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 20,
+    borderWidth: 1,
   },
   statusActive: {
-    backgroundColor: "#27ae60",
+    backgroundColor: "rgba(0, 255, 102, 0.15)",
+    borderColor: "#00FF66",
   },
   statusInactive: {
-    backgroundColor: "#e74c3c",
+    backgroundColor: "rgba(255, 51, 102, 0.15)",
+    borderColor: "#FF3366",
   },
   statusText: {
-    color: "#fff",
     fontSize: 12,
     fontWeight: "bold",
   },
+  // --- Кнопка управления ботом (без фона, фон задаётся через inline) ---
   toggleButton: {
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
+    // фон и тень задаются через inline или дополнительные классы
   },
   toggleButtonText: {
-    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#0A0C10",
+  },
+  // --- Кнопка с неоновой заливкой (для сохранения, запуска) ---
+  primaryButton: {
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    backgroundColor: "#00E5FF",
+    shadowColor: "#00E5FF",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  primaryButtonText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#0A0C10",
+  },
+  // --- Кнопка-ссылка (ghost) для настроек ---
+  syncButton: {
+    paddingVertical: 12,
+    alignItems: "center",
+    marginBottom: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#00E5FF",
+    backgroundColor: "transparent",
+  },
+  syncButtonText: {
     fontSize: 16,
     fontWeight: "600",
+    color: "#00E5FF",
+  },
+  // --- Кнопка опасного действия (выход) ---
+  dangerButton: {
+    paddingVertical: 12,
+    alignItems: "center",
+    marginBottom: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#FF3366",
+    backgroundColor: "transparent",
+  },
+  dangerButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FF3366",
   },
   // --- Статистика "Сегодня" ---
   statsHeader: {
@@ -98,7 +153,7 @@ export const styles = StyleSheet.create({
   trendBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#e8f5e9", // можно переопределить через тему
+    backgroundColor: "rgba(0, 229, 255, 0.1)",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 20,
@@ -107,12 +162,12 @@ export const styles = StyleSheet.create({
   trendIcon: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#27ae60",
+    color: "#00E5FF",
   },
   trendText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#27ae60",
+    color: "#00E5FF",
   },
   statsMain: {
     alignItems: "center",
@@ -122,30 +177,34 @@ export const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: "800",
     letterSpacing: 1,
+    color: "#FFFFFF",
   },
   statLabelBig: {
     fontSize: 16,
     marginTop: 2,
+    color: "#A0A0A0",
   },
   progressWrapper: {
     marginTop: 12,
   },
   progressTrack: {
     height: 6,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#2A2D34",
     borderRadius: 3,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
     borderRadius: 3,
+    backgroundColor: "#00E5FF",
   },
   progressLabel: {
     fontSize: 12,
     marginTop: 4,
     textAlign: "right",
+    color: "#A0A0A0",
   },
-  // --- Общая статистика (две метрики) ---
+  // --- Общая статистика ---
   totalStats: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -163,26 +222,29 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
-    backgroundColor: "rgba(0,0,0,0.05)", // базовый, будет переопределён через theme.accent + '20'
+    backgroundColor: "rgba(0, 229, 255, 0.1)",
   },
   totalIcon: {
     fontSize: 20,
+    color: "#00E5FF",
   },
   totalNumber: {
     fontSize: 28,
     fontWeight: "700",
     letterSpacing: 0.5,
+    color: "#FFFFFF",
   },
   totalLabel: {
     fontSize: 13,
     marginTop: 2,
+    color: "#A0A0A0",
   },
   totalDivider: {
     width: 1,
     height: 50,
-    backgroundColor: "#ddd",
+    backgroundColor: "#2A2D34",
   },
-  // --- График за неделю (столбцы) ---
+  // --- График за неделю ---
   weekChart: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -198,7 +260,7 @@ export const styles = StyleSheet.create({
     height: 100,
     justifyContent: "flex-end",
     width: 22,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#2A2D34",
     borderRadius: 8,
     overflow: "hidden",
   },
@@ -206,17 +268,20 @@ export const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 8,
     minHeight: 4,
+    backgroundColor: "#00E5FF",
   },
   barDay: {
     fontSize: 12,
     marginTop: 6,
+    color: "#A0A0A0",
   },
   barValue: {
     fontSize: 12,
     fontWeight: "500",
     marginTop: 2,
+    color: "#CCCCCC",
   },
-  // --- Остальные стили (если используются) ---
+  // --- Остальные ---
   statsRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -227,10 +292,12 @@ export const styles = StyleSheet.create({
   statNumber: {
     fontSize: 32,
     fontWeight: "bold",
+    color: "#FFFFFF",
   },
   statLabel: {
     fontSize: 12,
     marginTop: 4,
+    color: "#A0A0A0",
   },
   weekRow: {
     flexDirection: "row",
@@ -242,10 +309,12 @@ export const styles = StyleSheet.create({
   weekValue: {
     fontSize: 16,
     fontWeight: "bold",
+    color: "#FFFFFF",
   },
   weekLabel: {
     fontSize: 12,
     marginTop: 4,
+    color: "#A0A0A0",
   },
   rankRow: {
     marginBottom: 12,
@@ -258,23 +327,27 @@ export const styles = StyleSheet.create({
     left: 0,
     top: 0,
     zIndex: 1,
+    color: "#FFFFFF",
   },
   rankWord: {
     fontSize: 14,
     marginLeft: 30,
     marginBottom: 4,
+    color: "#CCCCCC",
   },
   rankCount: {
     fontSize: 12,
     position: "absolute",
     right: 0,
     top: 0,
+    color: "#A0A0A0",
   },
   rankBar: {
     height: 4,
     borderRadius: 2,
     marginTop: 4,
     marginLeft: 30,
+    backgroundColor: "#00E5FF",
   },
   chatRow: {
     flexDirection: "row",
@@ -283,15 +356,20 @@ export const styles = StyleSheet.create({
   },
   chatName: {
     fontSize: 14,
+    color: "#FFFFFF",
   },
   chatCount: {
     fontSize: 14,
     fontWeight: "bold",
+    color: "#A0A0A0",
   },
   favoriteCard: {
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    backgroundColor: "#15171E",
+    borderWidth: 1,
+    borderColor: "#2A2D34",
   },
   favoriteHeader: {
     flexDirection: "row",
@@ -301,32 +379,41 @@ export const styles = StyleSheet.create({
   favoriteType: {
     fontSize: 12,
     fontWeight: "bold",
+    color: "#00E5FF",
   },
   favoriteDate: {
     fontSize: 12,
+    color: "#A0A0A0",
   },
   favoriteText: {
     fontSize: 14,
     marginBottom: 8,
+    color: "#FFFFFF",
   },
   favoriteChat: {
     fontSize: 12,
     marginBottom: 12,
+    color: "#A0A0A0",
   },
   favoriteButton: {
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: "center",
+    backgroundColor: "#00E5FF",
   },
   favoriteButtonText: {
-    color: "#fff",
+    color: "#0A0C10",
     fontSize: 12,
     fontWeight: "bold",
   },
+  // --- Настройки ---
   settingsCard: {
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
+    backgroundColor: "#15171E",
+    borderWidth: 1,
+    borderColor: "#2A2D34",
   },
   settingRow: {
     flexDirection: "row",
@@ -334,37 +421,30 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#2A2D34",
   },
   settingLabel: {
     fontSize: 16,
-  },
-  syncButton: {
-    paddingVertical: 12,
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  syncButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
+    color: "#FFFFFF",
   },
   lastSync: {
     fontSize: 12,
     textAlign: "center",
+    color: "#A0A0A0",
   },
   aboutRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
   },
   aboutLabel: {
     fontSize: 14,
+    color: "#FFFFFF",
   },
   aboutValue: {
     fontSize: 14,
     fontWeight: "500",
+    color: "#CCCCCC",
   },
   hoursContainer: {
     flexDirection: "row",
@@ -380,8 +460,19 @@ export const styles = StyleSheet.create({
     width: 30,
     borderRadius: 15,
     marginBottom: 8,
+    backgroundColor: "#00E5FF",
   },
   hourLabel: {
     fontSize: 10,
+    color: "#A0A0A0",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#2A2D34",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: "#FFFFFF",
+    backgroundColor: "#15171E",
   },
 });

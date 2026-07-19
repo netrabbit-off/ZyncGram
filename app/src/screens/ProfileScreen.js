@@ -1,24 +1,24 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, Image } from "react-native";
-import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
-import { apiRequest } from "../api/client";
+import { apiRequest, baseURL } from "../api/client";
+import { darkTheme } from "../styles/theme";
 
 const ProfileScreen = () => {
-    const { theme } = useContext(ThemeContext);
+    const theme = darkTheme
     const [profile, setProfile] = useState({
         id: "123456789",
         username: "@username",
         firstname: "Имя",
         lastname: "Фамилия",
-        avatarUrl: "http://127.0.0.1:8080/profile/photo",
+        avatar: false,
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         apiRequest("/profile")
             .then((data) => {
-                setProfile(prev => ({ ...prev, ...data.data} ));
+                setProfile(data.data);
                 setLoading(false);
             })
     }, []);
@@ -45,33 +45,33 @@ const ProfileScreen = () => {
                 <Text style={[styles.cardTitle, { color: theme.text, textAlign: "center" }]}>👤 Профиль</Text>
 
                 {/* Аватар */}
-<View style={{ alignItems: "center", marginVertical: 16 }}>
-    {profile.avatarUrl !== null ? (
-        <Image
-            source={{ uri: profile.avatarUrl }}
-            style={{
-                width: 160,
-                height: 160,
-                borderRadius: 80,
-                backgroundColor: theme.cardBg,
-            }}
-            onError={() => console.log('Ошибка загрузки аватара')}
-        />
-    ) : (
-        <View style={{
-            width: 160,
-            height: 160,
-            borderRadius: 80,
-            backgroundColor: theme.accent,
-            justifyContent: "center",
-            alignItems: "center",
-        }}>
-            <Text style={{ fontSize: 36, color: "#fff" }}>
-                {profile.firstname?.[0] || "👤"}
-            </Text>
-        </View>
-    )}
-</View>
+                <View style={{ alignItems: "center", marginVertical: 16 }}>
+                    {profile.avatar ? (
+                        <Image
+                            source={{ uri: baseURL + "/profile/photo" }}
+                            style={{
+                                width: 160,
+                                height: 160,
+                                borderRadius: 80,
+                                backgroundColor: theme.cardBg,
+                            }}
+                            onError={() => console.log('Ошибка загрузки аватара')}
+                        />
+                    ) : (
+                        <View style={{
+                            width: 160,
+                            height: 160,
+                            borderRadius: 80,
+                            backgroundColor: theme.accent,
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}>
+                            <Text style={{ fontSize: 36, color: "#fff" }}>
+                                {profile.firstname?.[0] || "👤"}
+                            </Text>
+                        </View>
+                    )}
+                </View>
 
                 {/* Данные профиля */}
                 <View style={[styles.aboutRow, { borderBottomColor: theme.border }]}>

@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Switch, TouchableOpacity, Alert, ScrollView } from "react-native";
-import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
 import { apiRequest } from "../api/client";
+import { darkTheme } from "../styles/theme";
 
 const AutoReactionsScreen = () => {
-    const { theme } = useContext(ThemeContext);
+    const theme = darkTheme
 
     const [rules, setRules] = useState([]);
 

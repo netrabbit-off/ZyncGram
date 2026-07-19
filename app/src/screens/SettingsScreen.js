@@ -1,13 +1,11 @@
-import { useContext } from "react";
-import { Switch, Text, TouchableOpacity, View, Linking, Alert } from "react-native";
+import { Switch, Text, TouchableOpacity, View, Linking } from "react-native";
 
-// Контекст
-import { ThemeContext } from "../contexts/ThemeContext";
 // Стили
 import { styles } from "../styles/styles";
+import { darkTheme } from "../styles/theme";
 
-const SettingsScreen = () => {
-    const { isDarkMode, toggleTheme, theme, setActiveTab } = useContext(ThemeContext);
+const SettingsScreen = ({ setActiveTab }) => {
+    const theme = darkTheme
 
     const openGitHub = () => {
         Linking.openURL("https://github.com/netrabbit-off/ZyncGram");
@@ -35,15 +33,6 @@ const SettingsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Внешний вид */}
-            <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
-                <Text style={[styles.cardTitle, { color: theme.text }]}>Внешний вид</Text>
-                <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
-                    <Text style={[styles.settingLabel, { color: theme.text }]}>🌙 Тёмная тема</Text>
-                    <Switch value={isDarkMode} onValueChange={toggleTheme} />
-                </View>
-            </View>
-
             {/* Автоматика */}
             <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>✨ Автоматика</Text>
@@ -66,7 +55,7 @@ const SettingsScreen = () => {
             {/* О приложении и GitHub */}
             <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>О приложении</Text>
-                <View style={[styles.aboutRow, { borderBottomColor: theme.border }]}>
+                <View style={[styles.aboutRow]}>
                     <Text style={[styles.aboutLabel, { color: theme.subtext }]}>Версия</Text>
                     <Text style={[styles.aboutValue, { color: theme.text }]}>1.0.0</Text>
                 </View>

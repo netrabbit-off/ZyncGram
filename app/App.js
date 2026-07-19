@@ -1,11 +1,6 @@
-import { useContext } from 'react';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    ScrollView,
-} from 'react-native';
+import { useState } from 'react';
 
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import HomeScreen from './src/screens/HomeScreen';
@@ -16,12 +11,12 @@ import ReactionsScreen from './src/screens/ReactionsScreen';
 import FeaturesSettings from './src/screens/FeaturesSettings';
 import InitialSettingsScreen from './src/screens/InitialScreen';
 
-import { ThemeContext, ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import { styles } from './src/styles/styles';
+import { darkTheme } from './src/styles/theme';
 
-function AppContent() {
-    const { activeTab, setActiveTab } = useContext(ThemeContext);
-    const { theme } = useTheme();
+export default function App() {
+    const [activeTab, setActiveTab] = useState('home');
+    const theme = darkTheme
 
     AsyncStorage.getItem("isConfigured").then((value) => {
         if (!value || value === null) {
@@ -61,19 +56,11 @@ function AppContent() {
                 {activeTab === 'home' && <HomeScreen />}
                 {activeTab === 'stats' && <StatsScreen />}
                 {activeTab === 'profile' && <ProfileScreen />}
-                {activeTab === 'settings' && <SettingsScreen />}
+                {activeTab === 'settings' && <SettingsScreen setActiveTab={setActiveTab}/>}
                 {activeTab === 'reactions' && <ReactionsScreen />}
                 {activeTab === 'features' && <FeaturesSettings />}
-                {activeTab === 'initial' && <InitialSettingsScreen />}
+                {activeTab === 'initial' && <InitialSettingsScreen setActiveTab={setActiveTab}/>}
             </ScrollView>
         </View>
-    );
-}
-
-export default function App() {
-    return (
-        <ThemeProvider>
-            <AppContent />
-        </ThemeProvider>
     );
 }

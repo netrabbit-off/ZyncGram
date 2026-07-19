@@ -16,12 +16,13 @@ func NewProfileService(client *bot.Client) *ProfileService {
 	return &ProfileService{client: client}
 }
 
-func (s *ProfileService) GetProfile() (map[string]string, error) {
-	profile := map[string]string{
+func (s *ProfileService) GetProfile() (map[string]any, error) {
+	profile := map[string]any{
 		"id":        "0",
 		"username":  "-",
 		"firstname": "-",
 		"lastname":  "-",
+		"avatar":    false,
 	}
 
 	user, err := s.client.Telegram.GetMe()
@@ -33,6 +34,9 @@ func (s *ProfileService) GetProfile() (map[string]string, error) {
 	profile["username"] = user.Username
 	profile["firstname"] = user.FirstName
 	profile["lastname"] = user.LastName
+	if _, err := s.getProfilePhotoID(); err == nil {
+		profile["avatar"] = true
+	}
 
 	return profile, nil
 }
@@ -52,9 +56,15 @@ func (s *ProfileService) getProfilePhotoID() (int64, error) {
 
 	switch p := photosPhotos.(type) {
 	case *telegram.PhotosPhotosObj:
+		if len(p.Photos) == 0 {
+			return 0, errors.New("no profile photo")
+		}
 		photo = p.Photos[0].(*telegram.PhotoObj)
 
 	case *telegram.PhotosPhotosSlice:
+		if len(p.Photos) == 0 {
+			return 0, errors.New("no profile photo")
+		}
 		photo = p.Photos[0].(*telegram.PhotoObj)
 
 	default:

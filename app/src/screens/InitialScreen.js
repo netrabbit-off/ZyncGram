@@ -10,14 +10,14 @@ import {
     ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
+import { darkTheme } from "../styles/theme";
 
-const InitialSettingsScreen = () => {
-    const { setActiveTab, theme } = useContext(ThemeContext);
+const InitialSettingsScreen = ({ setActiveTab }) => {
     const [serverAddress, setServerAddress] = useState("");
     const [authToken, setAuthToken] = useState("");
     const [loading, setLoading] = useState(false);
+    const theme = darkTheme
 
     const handleSave = async () => {
         if (!serverAddress.trim()) {

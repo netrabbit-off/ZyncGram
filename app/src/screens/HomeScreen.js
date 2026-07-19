@@ -1,12 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 
-import { ThemeContext } from "../contexts/ThemeContext";
 import { apiRequest } from "../api/client";
 import { styles } from "../styles/styles";
+import { darkTheme } from "../styles/theme";
 
 const HomeScreen = () => {
-    const { theme } = useContext(ThemeContext);
+    const theme = darkTheme
+
     const [weekStats, setWeekStats] = useState([0, 0, 0, 0, 0, 0, 0]);
     const [botActive, setBotActive] = useState(false);
 

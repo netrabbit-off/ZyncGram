@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-let baseURL = 'http://127.0.0.1';
+export let baseURL = 'http://127.0.0.1';
 let authToken = '';
 
 async function loadApiClient() {

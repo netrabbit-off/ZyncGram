@@ -9,12 +9,13 @@ import {
     Alert,
     ActivityIndicator,
 } from "react-native";
-import { ThemeContext } from "../contexts/ThemeContext";
 import { styles } from "../styles/styles";
 import { apiRequest } from "../api/client";
+import { darkTheme } from "../styles/theme";
 
 const FeaturesSettings = () => {
-    const { theme } = useContext(ThemeContext);
+    const theme = darkTheme
+
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 

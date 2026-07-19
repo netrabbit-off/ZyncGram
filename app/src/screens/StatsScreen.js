@@ -1,14 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
-// Контекст
-import { ThemeContext } from "../contexts/ThemeContext";
 // Стили
 import { styles } from "../styles/styles";
 import { apiRequest } from "../api/client";
+import { darkTheme } from "../styles/theme";
 
 const StatsScreen = () => {
-    const { theme } = useContext(ThemeContext);
+    const theme = darkTheme;
 
     const [stats, setStats] = useState({
         total: { messages: 0, words: 0, uncensored: 0 },
