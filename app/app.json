@@ -1,22 +1,38 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "app",
+    "name": "Zync",
+    "slug": "zync",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "scheme": "zync",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0F14"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.netrabbit.zync"
     },
     "android": {
-      "package": "com.netrabbit.app"
+      "package": "com.netrabbit.zync",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0B0F14"
+      },
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "1c9b186c-c38a-46c9-9ffd-e6b82b69f95f"
+        "projectId": "296c8b3f-5611-4b92-879f-de2471fda25d"
       }
     },
     "plugins": [

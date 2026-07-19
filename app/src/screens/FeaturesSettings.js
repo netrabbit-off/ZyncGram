@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -9,22 +9,23 @@ import {
     Alert,
     ActivityIndicator,
 } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 import { styles } from "../styles/styles";
 import { apiRequest } from "../api/client";
 import { darkTheme } from "../styles/theme";
 
 const FeaturesSettings = () => {
-    const theme = darkTheme
+    const theme = darkTheme;
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
     const [settings, setSettings] = useState({
         antispam: false,
-        laugh: [false, false], // [private, group]
+        laugh: [false, false],
         animate: {
             words: [],
-            enabled: [false, false], // [private, group]
+            enabled: [false, false],
         },
     });
     const [newWord, setNewWord] = useState("");
@@ -32,7 +33,10 @@ const FeaturesSettings = () => {
     useEffect(() => {
         const loadSettings = async () => {
             try {
-                apiRequest("/settings").then(data => setSettings(data.data));
+                const data = await apiRequest("/settings");
+                if (data && data.data) {
+                    setSettings(data.data);
+                }
             } catch (error) {
                 Alert.alert("Ошибка", "Не удалось загрузить настройки");
                 console.error(error);
@@ -45,14 +49,22 @@ const FeaturesSettings = () => {
 
     const saveSettings = async () => {
         setSaving(true);
-        apiRequest("/settings/antispam", "POST", settings.antispam);
-        apiRequest("/settings/laugh", "POST", settings.laugh);
-        apiRequest("/settings/animate/enabled", "POST", settings.animate.enabled);
-        apiRequest("/settings/animate/words", "POST", settings.animate.words);
-        setSaving(false);
+        try {
+            await Promise.all([
+                apiRequest("/settings/antispam", "POST", settings.antispam),
+                apiRequest("/settings/laugh", "POST", settings.laugh),
+                apiRequest("/settings/animate/enabled", "POST", settings.animate.enabled),
+                apiRequest("/settings/animate/words", "POST", settings.animate.words),
+            ]);
+            Alert.alert("Успешно", "Настройки сохранены");
+        } catch (error) {
+            Alert.alert("Ошибка", "Не удалось сохранить настройки");
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
     };
 
-    // Обновление полей
     const updateLaugh = (index, value) => {
         const newLaugh = [...settings.laugh];
         newLaugh[index] = value;
@@ -104,10 +116,13 @@ const FeaturesSettings = () => {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ flex: 1, paddingBottom: 40, backgroundColor: theme.background }}>
             {/* Антиспам */}
             <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
-                <Text style={[styles.cardTitle, { color: theme.text }]}>🛡️ Антиспам</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <Ionicons name="shield-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                    <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Антиспам</Text>
+                </View>
                 <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
                     <Text style={[styles.settingLabel, { color: theme.text }]}>Включить антиспам</Text>
                     <Switch
@@ -119,7 +134,10 @@ const FeaturesSettings = () => {
 
             {/* Смех */}
             <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
-                <Text style={[styles.cardTitle, { color: theme.text }]}>😂 Смех</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <Ionicons name="happy-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                    <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Смех</Text>
+                </View>
                 <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
                     <Text style={[styles.settingLabel, { color: theme.text }]}>В ЛС</Text>
                     <Switch value={settings.laugh[0]} onValueChange={(val) => updateLaugh(0, val)} />
@@ -132,7 +150,10 @@ const FeaturesSettings = () => {
 
             {/* Анимация */}
             <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
-                <Text style={[styles.cardTitle, { color: theme.text }]}>✨ Анимация</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <Ionicons name="sparkles-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                    <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Анимация</Text>
+                </View>
                 <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
                     <Text style={[styles.settingLabel, { color: theme.text }]}>В ЛС</Text>
                     <Switch value={settings.animate.enabled[0]} onValueChange={(val) => updateAnimateEnabled(0, val)} />
@@ -166,10 +187,12 @@ const FeaturesSettings = () => {
                             paddingHorizontal: 16,
                             paddingVertical: 8,
                             borderRadius: 8,
+                            justifyContent: 'center',
+                            alignItems: 'center',
                         }}
                         onPress={addWord}
                     >
-                        <Text style={{ color: "#fff", fontWeight: "bold" }}>+</Text>
+                        <Ionicons name="add-outline" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
 
@@ -194,7 +217,7 @@ const FeaturesSettings = () => {
                             >
                                 <Text style={{ color: theme.text }}>{item}</Text>
                                 <TouchableOpacity onPress={() => removeWord(item)}>
-                                    <Text style={{ color: "#e74c3c", fontSize: 18 }}>✕</Text>
+                                    <Ionicons name="close-outline" size={20} color="#e74c3c" />
                                 </TouchableOpacity>
                             </View>
                         )}
@@ -208,9 +231,16 @@ const FeaturesSettings = () => {
                 onPress={saveSettings}
                 disabled={saving}
             >
-                <Text style={[styles.syncButtonText, { color: theme.accent }]}>
-                    {saving ? "Сохранение..." : "💾 Сохранить настройки"}
-                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    {saving ? (
+                        <ActivityIndicator size="small" color={theme.accent} />
+                    ) : (
+                        <>
+                            <Ionicons name="save-outline" size={20} color={theme.accent} style={{ marginRight: 8 }} />
+                            <Text style={[styles.syncButtonText, { color: theme.accent }]}>Сохранить настройки</Text>
+                        </>
+                    )}
+                </View>
             </TouchableOpacity>
         </View>
     );

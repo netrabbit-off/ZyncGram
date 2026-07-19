@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, Image } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 import { styles } from "../styles/styles";
 import { apiRequest, baseURL } from "../api/client";
 import { darkTheme } from "../styles/theme";
 
 const ProfileScreen = () => {
-    const theme = darkTheme
+    const theme = darkTheme;
     const [profile, setProfile] = useState({
         id: "123456789",
         username: "@username",
@@ -21,6 +22,10 @@ const ProfileScreen = () => {
                 setProfile(data.data);
                 setLoading(false);
             })
+            .catch(err => {
+                console.error('Ошибка загрузки профиля:', err);
+                setLoading(false);
+            });
     }, []);
 
     if (loading) {
@@ -42,7 +47,10 @@ const ProfileScreen = () => {
     return (
         <View style={{ flex: 1, backgroundColor: theme.background }}>
             <View style={[styles.settingsCard, { backgroundColor: theme.cardBg }]}>
-                <Text style={[styles.cardTitle, { color: theme.text, textAlign: "center" }]}>👤 Профиль</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                    <Ionicons name="person-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                    <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Профиль</Text>
+                </View>
 
                 {/* Аватар */}
                 <View style={{ alignItems: "center", marginVertical: 16 }}>
@@ -66,27 +74,25 @@ const ProfileScreen = () => {
                             justifyContent: "center",
                             alignItems: "center",
                         }}>
-                            <Text style={{ fontSize: 36, color: "#fff" }}>
-                                {profile.firstname?.[0] || "👤"}
-                            </Text>
+                            <Ionicons name="person-outline" size={72} color="#fff" />
                         </View>
                     )}
                 </View>
 
                 {/* Данные профиля */}
-                <View style={[styles.aboutRow, { borderBottomColor: theme.border }]}>
+                <View style={[styles.aboutRow, { borderBottomColor: theme.border, borderBottomWidth: 1 }]}>
                     <Text style={[styles.aboutLabel, { color: theme.subtext }]}>Имя</Text>
                     <Text style={[styles.aboutValue, { color: theme.text }]}>
                         {profile.firstname} {profile.lastname || ""}
                     </Text>
                 </View>
-                <View style={[styles.aboutRow, { borderBottomColor: theme.border }]}>
+                <View style={[styles.aboutRow, { borderBottomColor: theme.border, borderBottomWidth: 1 }]}>
                     <Text style={[styles.aboutLabel, { color: theme.subtext }]}>Username</Text>
-                    <Text style={[styles.aboutValue, { color: theme.text }]}>
-                        {profile.username || "—"}
+                    <Text style={[styles.aboutValue, { color: theme.accent }]}>
+                        {profile.username && "@"}{profile.username || "—"}
                     </Text>
                 </View>
-                <View style={[styles.aboutRow, { borderBottomColor: theme.border }]}>
+                <View style={[styles.aboutRow, { borderBottomColor: theme.border, borderBottomWidth: 1 }]}>
                     <Text style={[styles.aboutLabel, { color: theme.subtext }]}>ID</Text>
                     <Text style={[styles.aboutValue, { color: theme.text }]}>{profile.id}</Text>
                 </View>

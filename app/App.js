@@ -1,7 +1,7 @@
-import { useState } from 'react';
-
+import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from './src/screens/HomeScreen';
 import StatsScreen from './src/screens/StatsScreen';
@@ -16,13 +16,29 @@ import { darkTheme } from './src/styles/theme';
 
 export default function App() {
     const [activeTab, setActiveTab] = useState('home');
-    const theme = darkTheme
+    const theme = darkTheme;
 
-    AsyncStorage.getItem("isConfigured").then((value) => {
-        if (!value || value === null) {
-            setActiveTab("initial");
+    // Проверяем, настроено ли приложение
+    useEffect(() => {
+        AsyncStorage.getItem("isConfigured").then((value) => {
+            if (!value || value === 'false') {
+                setActiveTab("initial");
+            }
+        });
+    }, []);
+
+    // Определяем, активна ли вкладка (с учётом вложенных)
+    const isTabActive = (tab) => {
+        if (tab === 'settings') {
+            return activeTab === 'settings' || activeTab === 'reactions' || activeTab === 'profile' || activeTab === 'features';
         }
-    })
+        return activeTab === tab;
+    };
+
+    // Получаем цвет текста для таба
+    const getTabColor = (tab) => {
+        return isTabActive(tab) ? theme.accent : theme.subtext;
+    };
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -36,19 +52,44 @@ export default function App() {
 
             {/* Tab Bar */}
             <View style={[styles.tabBar, { backgroundColor: theme.cardBg, borderBottomColor: theme.border }]}>
-                {['home', 'stats', 'settings'].map(tab => (
-                    <TouchableOpacity
+                {['home', 'stats', 'settings'].map(tab => {
+                    let iconName;
+                    let label;
+                    switch (tab) {
+                        case 'home':
+                            iconName = 'home-outline';
+                            label = 'Главная';
+                            break;
+                        case 'stats':
+                            iconName = 'stats-chart-outline';
+                            label = 'Статистика';
+                            break;
+                        case 'settings':
+                            iconName = 'settings-outline';
+                            label = 'Настройки';
+                            break;
+                    }
+                    const active = isTabActive(tab);
+                    return (
+                        <TouchableOpacity
                             key={tab}
-                            style={[styles.tab, (activeTab === tab || (activeTab === 'reactions' || activeTab === 'profile' || activeTab === 'features') && tab === 'settings') && { borderBottomColor: theme.accent }]}
+                            style={[
+                                styles.tab,
+                                active && { borderBottomColor: theme.accent }
+                            ]}
                             onPress={() => setActiveTab(tab)}
                         >
-                        <Text style={[styles.tabText, { color: (activeTab === tab || (activeTab === 'reactions' || activeTab === 'profile' || activeTab === 'features') && tab === 'settings') ? theme.accent : theme.subtext }]}>
-                            {tab === 'home' && '🏠 Главная'}
-                            {tab === 'stats' && '📊 Статистика'}
-                            {tab === 'settings' && '⚙️ Настройки'}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+                            <Ionicons
+                                name={iconName}
+                                size={22}
+                                color={active ? theme.accent : theme.subtext}
+                            />
+                            <Text style={[styles.tabText, { color: active ? theme.accent : theme.subtext }]}>
+                                {label}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                })}
             </View>
 
             {/* Content */}
@@ -56,10 +97,10 @@ export default function App() {
                 {activeTab === 'home' && <HomeScreen />}
                 {activeTab === 'stats' && <StatsScreen />}
                 {activeTab === 'profile' && <ProfileScreen />}
-                {activeTab === 'settings' && <SettingsScreen setActiveTab={setActiveTab}/>}
+                {activeTab === 'settings' && <SettingsScreen setActiveTab={setActiveTab} />}
                 {activeTab === 'reactions' && <ReactionsScreen />}
                 {activeTab === 'features' && <FeaturesSettings />}
-                {activeTab === 'initial' && <InitialSettingsScreen setActiveTab={setActiveTab}/>}
+                {activeTab === 'initial' && <InitialSettingsScreen setActiveTab={setActiveTab} />}
             </ScrollView>
         </View>
     );

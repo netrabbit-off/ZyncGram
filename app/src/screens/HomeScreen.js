@@ -1,21 +1,36 @@
 import { useEffect, useState } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 
 import { apiRequest } from "../api/client";
 import { styles } from "../styles/styles";
 import { darkTheme } from "../styles/theme";
 
 const HomeScreen = () => {
-    const theme = darkTheme
+    const theme = darkTheme;
 
     const [weekStats, setWeekStats] = useState([0, 0, 0, 0, 0, 0, 0]);
     const [botActive, setBotActive] = useState(false);
 
     useEffect(() => {
-        apiRequest("/stats/week").then(data => setWeekStats(data.data))
-    }, [])
-    
-    let weekSum = weekStats.reduce((acc, curr) => acc + curr, 0)
+        apiRequest("/bot/status")
+            .then(data => setBotActive(data.data))
+            .catch(err => console.error('Ошибка загрузки статуса бота:', err));
+    }, []);
+
+    useEffect(() => {
+        apiRequest("/stats/week")
+            .then(data => setWeekStats(data.data))
+            .catch(err => console.error('Ошибка загрузки статистики за неделю:', err));
+    }, []);
+
+    const PowerBot = () => {
+        setBotActive(!botActive);
+        apiRequest("/bot/power")
+            .catch(err => console.error('Ошибка переключения бота:', err));
+    };
+
+    const weekSum = weekStats.reduce((acc, curr) => acc + curr, 0);
     const today = weekStats[6] || 0;
     const yesterday = weekStats[5] || 0;
     let trendPercent = 0;
@@ -54,34 +69,52 @@ const HomeScreen = () => {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0'); // Месяцы в JS идут с 0
+        const month = String(d.getMonth() + 1).padStart(2, '0');
         dates.push(`${day}.${month}`);
     }
 
+    const progressWidth = weekSum > 0
+        ? Math.min(1, today / (weekSum / 7)) * 100
+        : 0;
+
     return (
-        <View>
+        <View style={{ paddingBottom: 40 }}>
             {/* Статус бота */}
             <View style={[styles.card, { backgroundColor: theme.cardBg }]}>
                 <View style={styles.statusRow}>
-                    <Text style={[styles.cardTitle, { color: theme.text }]}>🤖 Статус бота</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Ionicons name="hardware-chip-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                        <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Статус бота</Text>
+                    </View>
                     <View style={[styles.statusBadge, botActive ? styles.statusActive : styles.statusInactive]}>
-                        <Text style={styles.statusText}>{botActive ? 'Активен' : 'Остановлен'}</Text>
+                        <Text style={styles.tabText}>{botActive ? 'Активен' : 'Остановлен'}</Text>
                     </View>
                 </View>
                 <TouchableOpacity
                     style={[styles.toggleButton, { backgroundColor: botActive ? '#e74c3c' : '#27ae60' }]}
-                    onPress={() => setBotActive(!botActive)}
+                    onPress={PowerBot}
                 >
-                    <Text style={styles.toggleButtonText}>
-                        {botActive ? '⏸ Остановить бота' : '▶ Запустить бота'}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                        <Ionicons 
+                            name={botActive ? 'pause-outline' : 'play-outline'} 
+                            size={20} 
+                            color="#0A0C10" 
+                            style={{ marginRight: 8 }} 
+                        />
+                        <Text style={styles.toggleButtonText}>
+                            {botActive ? 'Остановить бота' : 'Запустить бота'}
+                        </Text>
+                    </View>
                 </TouchableOpacity>
             </View>
 
             {/* Краткая статистика */}
             <View style={[styles.card, { backgroundColor: theme.cardBg }]}>
                 <View style={styles.statsHeader}>
-                    <Text style={[styles.cardTitle, { color: theme.text }]}>📊 Сегодня</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Ionicons name="today-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                        <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Сегодня</Text>
+                    </View>
                     <View style={[styles.trendBadge, { backgroundColor: trendColor + '20' }]}>
                         <Text style={[styles.trendIcon, { color: trendColor }]}>{trendDirection}</Text>
                         <Text style={[styles.trendText, { color: trendColor }]}>
@@ -90,7 +123,7 @@ const HomeScreen = () => {
                     </View>
                 </View>
                 <View style={styles.statsMain}>
-                    <Text style={[styles.statNumberBig, { color: theme.accent }]}>{weekStats[6]}</Text>
+                    <Text style={[styles.statNumberBig, { color: theme.accent }]}>{today}</Text>
                     <Text style={[styles.statLabelBig, { color: theme.subtext }]}>сообщений</Text>
                 </View>
                 <View style={styles.progressWrapper}>
@@ -98,22 +131,27 @@ const HomeScreen = () => {
                         <View style={[
                             styles.progressFill,
                             {
-                                width: Math.min(1, weekStats[6] / (weekSum / 7)) * 100 + '%',
+                                width: progressWidth + '%',
                                 backgroundColor: theme.accent
                             }
                         ]} />
                     </View>
-                    <Text style={[styles.progressLabel, { color: theme.subtext }]}>Среднее за неделю: {Math.round(weekSum/7)}</Text>
+                    <Text style={[styles.progressLabel, { color: theme.subtext }]}>
+                        Среднее за неделю: {weekSum > 0 ? Math.round(weekSum / 7) : 0}
+                    </Text>
                 </View>
             </View>
 
             {/* Сообщения за неделю */}
             <View style={[styles.card, { backgroundColor: theme.cardBg }]}>
-                <Text style={[styles.cardTitle, { color: theme.text }]}>📈 Сообщения (неделя)</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <Ionicons name="bar-chart-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                    <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Сообщения (неделя)</Text>
+                </View>
                 <View style={styles.weekChart}>
                     {dates.map((day, i) => {
                         const max = Math.max(...weekStats);
-                        const heightPercent = (weekStats[i] / max) * 100;
+                        const heightPercent = max > 0 ? (weekStats[i] / max) * 100 : 0;
                         return (
                             <View key={day} style={styles.barWrapper}>
                                 <View style={styles.barContainer}>
@@ -128,6 +166,6 @@ const HomeScreen = () => {
             </View>
         </View>
     );
-}
+};
 
 export default HomeScreen;

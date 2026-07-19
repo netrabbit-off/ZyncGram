@@ -254,7 +254,7 @@ export const styles = StyleSheet.create({
   },
   barWrapper: {
     alignItems: "center",
-    width: 30,
+    width: 40,
   },
   barContainer: {
     height: 100,
@@ -419,9 +419,6 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2A2D34",
   },
   settingLabel: {
     fontSize: 16,

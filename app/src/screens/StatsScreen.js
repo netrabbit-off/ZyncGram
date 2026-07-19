@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 
 // Стили
 import { styles } from "../styles/styles";
@@ -15,6 +16,7 @@ const StatsScreen = () => {
     });
 
     useEffect(() => {
+        // Загрузка топ-слов
         apiRequest("/stats/words/top")
             .then(data => {
                 if (data.error) {
@@ -29,24 +31,41 @@ const StatsScreen = () => {
                 newTopWords.sort((a, b) => b.count - a.count);
                 setStats(prev => ({ ...prev, topWords: newTopWords }));
             })
+            .catch(err => console.error('Ошибка загрузки топ-слов:', err));
+
+        // Загрузка общей статистики
         apiRequest("/stats/total")
             .then(data => {
-                setStats(prev => ({
-                    ...prev, 
-                    total: data.data.total
-                }))
+                if (data && data.data && data.data.total) {
+                    setStats(prev => ({
+                        ...prev,
+                        total: data.data.total
+                    }));
+                }
             })
+            .catch(err => console.error('Ошибка загрузки статистики:', err));
     }, []);
 
+    // Безопасное вычисление средних
+    const avgWords = stats.total.messages > 0 
+        ? (stats.total.words / stats.total.messages).toFixed(1) 
+        : '0.0';
+    const swearPercent = stats.total.words > 0 
+        ? ((stats.total.uncensored / stats.total.words) * 100).toFixed(2) 
+        : '0.00';
+
     return (
-        <View>
+        <View style={{ paddingBottom: 40 }}>
             {/* Общая статистика */}
             <View style={[styles.card, { backgroundColor: theme.cardBg }]}>
-                <Text style={[styles.cardTitle, { color: theme.text }]}>📊 Общая статистика</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <Ionicons name="stats-chart-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                    <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Общая статистика</Text>
+                </View>
                 <View style={styles.totalStats}>
                     <View style={styles.totalItem}>
                         <View style={[styles.totalIconWrapper, { backgroundColor: theme.accent + '20' }]}>
-                            <Text style={styles.totalIcon}>💬</Text>
+                            <Ionicons name="chatbubble-outline" size={24} color={theme.accent} />
                         </View>
                         <Text style={[styles.totalNumber, { color: theme.accent }]}>{stats.total.messages}</Text>
                         <Text style={[styles.totalLabel, { color: theme.subtext }]}>сообщений</Text>
@@ -56,11 +75,9 @@ const StatsScreen = () => {
 
                     <View style={styles.totalItem}>
                         <View style={[styles.totalIconWrapper, { backgroundColor: theme.accent + '20' }]}>
-                            <Text style={styles.totalIcon}>📝</Text>
+                            <Ionicons name="create-outline" size={24} color={theme.accent} />
                         </View>
-                        <Text style={[styles.totalNumber, { color: theme.accent }]}>
-                            {(stats.total.words / stats.total.messages).toFixed(1)}
-                        </Text>
+                        <Text style={[styles.totalNumber, { color: theme.accent }]}>{avgWords}</Text>
                         <Text style={[styles.totalLabel, { color: theme.subtext }]}>ср. слов</Text>
                     </View>
 
@@ -68,26 +85,32 @@ const StatsScreen = () => {
 
                     <View style={styles.totalItem}>
                         <View style={[styles.totalIconWrapper, { backgroundColor: theme.accent + '20' }]}>
-                            <Text style={styles.totalIcon}>🤬</Text>
+                            <Ionicons name="warning-outline" size={24} color={theme.accent} />
                         </View>
-                        <Text style={[styles.totalNumber, { color: theme.accent }]}>
-                            {(stats.total.uncensored / stats.total.words * 100).toFixed(2)}%
-                        </Text>
+                        <Text style={[styles.totalNumber, { color: theme.accent }]}>{swearPercent}%</Text>
                         <Text style={[styles.totalLabel, { color: theme.subtext }]}>частота мата</Text>
                     </View>
                 </View>
             </View>
 
+            {/* Топ слов */}
             <View style={[styles.card, { backgroundColor: theme.cardBg }]}>
-                <Text style={[styles.cardTitle, { color: theme.text }]}>🔥 Топ слов</Text>
-                {stats.topWords.map((item, i) => (
-                    <View key={i} style={styles.rankRow}>
-                        <Text style={[styles.rankNumber, { color: theme.accent }]}>{i + 1}</Text>
-                        <Text style={[styles.rankWord, { color: theme.text }]}>{item.word}</Text>
-                        <Text style={[styles.rankCount, { color: theme.subtext }]}>{item.count}×</Text>
-                        <View style={[styles.rankBar, { width: `${(item.count / stats.topWords[0].count) * 85}%`, backgroundColor: theme.accent }]} />
-                    </View>
-                ))}
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <Ionicons name="flame-outline" size={24} color={theme.accent} style={{ marginRight: 8 }} />
+                    <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 0 }]}>Топ слов</Text>
+                </View>
+                {stats.topWords.length === 0 ? (
+                    <Text style={{ color: theme.subtext, textAlign: 'center' }}>Нет данных</Text>
+                ) : (
+                    stats.topWords.map((item, i) => (
+                        <View key={i} style={styles.rankRow}>
+                            <Text style={[styles.rankNumber, { color: theme.accent }]}>{i + 1}</Text>
+                            <Text style={[styles.rankWord, { color: theme.text }]}>{item.word}</Text>
+                            <Text style={[styles.rankCount, { color: theme.subtext }]}>{item.count}×</Text>
+                            <View style={[styles.rankBar, { width: `${(item.count / stats.topWords[0].count) * 85}%`, backgroundColor: theme.accent }]} />
+                        </View>
+                    ))
+                )}
             </View>
         </View>
     );
