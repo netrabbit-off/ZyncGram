@@ -72,6 +72,17 @@ func (s *StatsService) UpdateWordsTop(messageText string) error {
 			return !unicode.IsLetter(r)
 		})
 
+		// Удаление повторяющихся подряд символов
+		var builder strings.Builder
+		var prev rune
+		for i, r := range word {
+			if i == 0 || r != prev {
+				builder.WriteRune(r)
+			}
+			prev = r
+		}
+		word = builder.String()
+
 		if word == "" {
 			continue
 		}

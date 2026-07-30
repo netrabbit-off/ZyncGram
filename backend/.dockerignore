@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.env.local
+*.log
+*.db
+session.dat
+cache_*.db
+.DS_Store
+docker-compose.yml
+Makefile
+README.md
+.idea/
+.vscode/

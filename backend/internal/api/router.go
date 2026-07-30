@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -41,7 +42,7 @@ func CreateRouter(
 
 func (r *Router) InitHandlers() {
 	r.srv = &http.Server{
-		Addr:    ":8080",
+		Addr:    fmt.Sprintf(":%v", r.cfg.Port),
 		Handler: r.router.Handler(),
 	}
 
